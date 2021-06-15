@@ -64,7 +64,9 @@ class Api extends HttpServlet
 				// Request conversion may also fail
 				req.toRequest match
 				{
-					case Some(request) => requestHandler(request).update(res)
+					case Some(request) =>
+						// TODO: Log request - response pairs
+						requestHandler(request).update(res)
 					case None => res.setStatus(BadRequest.code)
 				}
 			case Failure(exception) =>
@@ -87,14 +89,13 @@ class Api extends HttpServlet
 		val readResult = Globals.connectionPool.tryWith { implicit connection =>
 			ApiSettings.address.map { address =>
 				implicit val settings: ServerSettings = ServerSettings(address)
-				// TODO: When releasing api v2, add support for versioned resources in RequestHandler
 				val path = ApiSettings.rootPath match
 				{
-					case Some(rootPath) => rootPath/"api"/"v1"
-					case None => Path("api", "v1")
+					case Some(rootPath) => rootPath/"api"
+					case None => Path("api")
 				}
-				val requestHandler = new RequestHandler[AuthorizedContext](ExodusResources.default,
-					Some(path), AuthorizedContext(_) { error => Log("Api.request.context", error) })
+				val requestHandler = RequestHandler[AuthorizedContext](Map("v1" -> ExodusResources.default),
+					Some(path)) { AuthorizedContext(_) { error => Log("Api.request.context", error) } }
 				
 				settings -> requestHandler
 			}

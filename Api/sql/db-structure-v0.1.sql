@@ -676,6 +676,7 @@ INSERT INTO setting (category, field, json_value) VALUES
 -- 2: Problem - A problem in the software that can be recovered from but which should be fixed when possible
 -- 3: Error - A problem in the software that renders a portion of the service unavailable (high priority fix)
 -- 4: Critical Failure - A problem in the software that prevents the use thereof and must be fixed ASAP
+-- The problem table contains error categories
 CREATE TABLE problem(
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     context VARCHAR(96) NOT NULL,
@@ -685,7 +686,7 @@ CREATE TABLE problem(
     UNIQUE INDEX p_location_idx (severity, context)
 
 )Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
-
+-- The problem_occurrence table contains problem events
 CREATE TABLE problem_occurrence(
     id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     problem_id INT NOT NULL,
@@ -699,3 +700,5 @@ CREATE TABLE problem_occurrence(
         REFERENCES problem(id) ON DELETE CASCADE
 
 )Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+
+-- Used for logging incoming requests and their responses
