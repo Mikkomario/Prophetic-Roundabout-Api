@@ -7,6 +7,8 @@ import utopia.exodus.rest.resource.ExodusResources
 import utopia.exodus.rest.util.AuthorizedContext
 import utopia.exodus.util.ExodusContext
 import utopia.flow.parse.JsonParser
+import utopia.flow.time.TimeExtensions._
+import utopia.flow.util.CollectionExtensions._
 import utopia.nexus.http.{Path, ServerSettings}
 import utopia.nexus.rest.RequestHandler
 import utopia.nexus.servlet.HttpExtensions._
@@ -14,6 +16,10 @@ import utopia.vault.database.Connection
 import utopia.vault.util.{ErrorHandling, ErrorHandlingPrinciple}
 import vf.pr.api.database.Tables
 import vf.pr.api.database.access.single.setting.ApiSettings
+import Globals.executionContext
+import utopia.flow.time.Now
+import vf.pr.api.database.model.logging.RequestLogModel
+import vf.pr.api.model.partial.logging.RequestLogData
 
 import javax.servlet.annotation.MultipartConfig
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
@@ -65,8 +71,17 @@ class Api extends HttpServlet
 				req.toRequest match
 				{
 					case Some(request) =>
-						// TODO: Log request - response pairs
-						requestHandler(request).update(res)
+						// Generates the response
+						val response = requestHandler(request)
+						// Logs the request/response pair
+						Globals.connectionPool.tryWith { implicit connection =>
+							RequestLogModel.insert(RequestLogData(request.method, request.path, response.status,
+								request.created, Now - request.created))
+						}.failure.foreach { error =>
+							Log.withoutConnection("Api.request.log", error = Some(error))
+						}
+						// Returns the response
+						response.update(res)
 					case None => res.setStatus(BadRequest.code)
 				}
 			case Failure(exception) =>
@@ -85,7 +100,6 @@ class Api extends HttpServlet
 	
 	// Uses cached settings or reads them
 	private def setup = cachedSetup.getOrElse {
-		import Globals.executionContext
 		val readResult = Globals.connectionPool.tryWith { implicit connection =>
 			ApiSettings.address.map { address =>
 				implicit val settings: ServerSettings = ServerSettings(address)

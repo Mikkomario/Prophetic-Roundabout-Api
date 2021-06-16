@@ -702,3 +702,14 @@ CREATE TABLE problem_occurrence(
 )Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 
 -- Used for logging incoming requests and their responses
+CREATE TABLE request(
+    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    method VARCHAR(5) NOT NULL DEFAULT 'GET',
+    path VARCHAR(128),
+    status_code INT NOT NULL DEFAULT 200,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    duration_micro_seconds INT NOT NULL DEFAULT 0,
+
+    INDEX r_creation_idx (created)
+
+)Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;

@@ -33,6 +33,10 @@ object Tables extends utopia.vault.database.Tables(Globals.connectionPool)
 	 * @return A table that records server side problem occurrences
 	 */
 	def problemOccurrence = apply("problem_occurrence")
+	/**
+	 * @return A table that records incoming requests and their responses
+	 */
+	def request = apply("request")
 	
 	
 	// OTHER    ---------------------------------
