@@ -11,6 +11,7 @@ import vf.pr.api.database.model.SettingModel
 import vf.pr.api.model.error.MissingSettingException
 import vf.pr.api.model.stored.Setting
 import vf.pr.api.util.Globals._
+import vf.pr.api.util.Log
 
 import scala.concurrent.duration.Duration
 
@@ -29,11 +30,14 @@ class SettingsAccess(category: String, fieldCacheDurations: Map[String, Duration
 	private val cache = Cache.expiring[String, Value] { field =>
 		connectionPool.tryWith { implicit connection =>
 			Access(field).value
-		}.getOrMap { _ =>
-			// TODO: Log error
+		}.getOrMap { error =>
+			Log.withoutConnection("SettingsAccess.cache", error = Some(error))
 			Value.empty
 		}
-	} { (k, _) => fieldCacheDurations.getOrElse(k, Duration.Zero) }
+	} { (k, v) =>
+		// Doesn't cache empty values
+		if (v.isEmpty) Duration.Zero else fieldCacheDurations.getOrElse(k, Duration.Zero)
+	}
 	
 	
 	// OTHER    -------------------------

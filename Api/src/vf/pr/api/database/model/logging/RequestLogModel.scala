@@ -35,6 +35,6 @@ case class RequestLogModel(id: Option[Long] = None, method: Option[Method], path
 	override def table = RequestLogModel.table
 	
 	override def valueProperties = Vector("id" -> id, "method" -> method.map { _.toString },
-		"path" -> path.map { _.toString }, "status" -> status.map { _.code }, "created" -> created,
+		"path" -> path.map { _.toString }, "statusCode" -> status.map { _.code }, "created" -> created,
 		"durationMicroSeconds" -> duration.map { _.toMicros })
 }

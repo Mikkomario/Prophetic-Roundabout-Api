@@ -38,6 +38,15 @@ object Tables extends utopia.vault.database.Tables(Globals.connectionPool)
 	 */
 	def request = apply("request")
 	
+	/**
+	 * @return Table that records (first time) Zoom authentication attempts
+	 */
+	def zoomAuthAttempt = apply("zoom_authentication_attempt")
+	/**
+	 * @return Table that records Zoom authentication tokens
+	 */
+	def zoomAuthToken = apply("zoom_authentication_token")
+	
 	
 	// OTHER    ---------------------------------
 	

@@ -667,7 +667,12 @@ CREATE TABLE setting(
 
 INSERT INTO setting (category, field, json_value) VALUES
     ('api', 'address', 'http://localhost:9999/roundabout/'),
-    ('api', 'root-path', 'roundabout');
+    ('api', 'root-path', 'roundabout'),
+    ('zoom', 'auth-uri', 'https://zoom.us/oauth/authorize')
+    ('zoom', 'redirect-uri', 'http://localhost:9999/roundabout/api/v1/zoom/login/response'),
+    ('zoom', 'client-id', NULL),
+    ('zoom', 'client-secret', NULL),
+    ('zoom', 'authentication-timeout-hours', 22);
 
 -- Logs server side errors
 -- Severity levels are as follows:
@@ -711,5 +716,38 @@ CREATE TABLE request(
     duration_micro_seconds INT NOT NULL DEFAULT 0,
 
     INDEX r_creation_idx (created)
+
+)Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+
+-- Used for storing Zoom authorization attempts coming from the client
+-- (will be matched when/if receiving a code from the Zoom auth)
+CREATE TABLE zoom_authentication_attempt(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    token VARCHAR(36) NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    closed DATETIME,
+
+    INDEX zaa_auth_idx (created, closed, token),
+
+    CONSTRAINT zaa_u_attempt_owner_ref_fk FOREIGN KEY zaa_u_attempt_owner_ref_fk (user_id)
+        REFERENCES `user`(id) ON DELETE CASCADE
+
+)Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+
+-- Used for storing session and refresh keys for Zoom users for request authentication
+-- Token types: 1 = Session Token, 2 = Refresh Token
+CREATE TABLE zoom_authentication_token(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    token_type INT NOT NULL DEFAULT 1,
+    token VARCHAR(600) NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expiration DATETIME NOT NULL,
+
+    INDEX zat_expiration_idx (expiration),
+
+    CONSTRAINT zat_u_owner_link_fk FOREIGN KEY zat_u_owner_link_idx (user_id)
+        REFERENCES `user`(id) ON DELETE CASCADE
 
 )Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
