@@ -5,6 +5,7 @@ package vf.pr.api.model.enumeration
  * @author Mikko Hilpinen
  * @since 16.6.2021, v0.1
  */
+@deprecated("Refactored token models so that this enumeration is no more needed", "v0.1")
 sealed trait TokenType
 {
 	/**
@@ -13,6 +14,7 @@ sealed trait TokenType
 	val id: Int
 }
 
+@deprecated("Refactored token models so that this enumeration is no more needed", "v0.1")
 object TokenType
 {
 	// ATTRIBUTES   --------------------------------

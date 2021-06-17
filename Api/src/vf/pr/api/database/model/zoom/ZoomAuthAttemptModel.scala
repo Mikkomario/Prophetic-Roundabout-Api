@@ -12,12 +12,30 @@ import java.time.Instant
 
 object ZoomAuthAttemptModel extends DataInserter[ZoomAuthAttemptModel, ZoomAuthAttempt, ZoomAuthAttemptData]
 {
+	// ATTRIBUTES   -------------------------------
+	
+	/**
+	 * Name of the property that contains authentication closing / finishing time stamp, if specified
+	 */
+	val closingTimeAttName = "closed"
+	
+	
 	// COMPUTED -----------------------------------
 	
 	/**
 	 * @return The factory used by this model
 	 */
 	def factory = ZoomAuthAttemptFactory
+	
+	/**
+	 * @return Column that contains authentication closing / finishing time stamp
+	 */
+	def closingTimeColumn = table(closingTimeAttName)
+	
+	/**
+	 * @return A condition that only yields open authentication attempts
+	 */
+	def openCondition = closingTimeColumn.isNull
 	
 	
 	// IMPLEMENTED  ------------------------------
@@ -28,6 +46,15 @@ object ZoomAuthAttemptModel extends DataInserter[ZoomAuthAttemptModel, ZoomAuthA
 		apply(None, Some(data.userId), Some(data.token), Some(data.created), data.closed)
 	
 	override protected def complete(id: Value, data: ZoomAuthAttemptData) = ZoomAuthAttempt(id.getInt, data)
+	
+	
+	// OTHER    ---------------------------------
+	
+	/**
+	 * @param token An authentication token
+	 * @return A model with that token
+	 */
+	def withToken(token: String) = apply(token = Some(token))
 }
 
 /**
@@ -39,8 +66,10 @@ case class ZoomAuthAttemptModel(id: Option[Int] = None, userId: Option[Int] = No
                                 created: Option[Instant] = None, closed: Option[Instant] = None)
 	extends StorableWithFactory[ZoomAuthAttempt]
 {
+	import ZoomAuthAttemptModel._
+	
 	override def factory = ZoomAuthAttemptModel.factory
 	
 	override def valueProperties = Vector("id" -> id, "userId" -> userId, "token" -> token,
-		"created" -> created, "closed" -> closed)
+		"created" -> created, closingTimeAttName -> closed)
 }

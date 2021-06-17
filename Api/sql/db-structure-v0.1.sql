@@ -666,13 +666,16 @@ CREATE TABLE setting(
 )Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 
 INSERT INTO setting (category, field, json_value) VALUES
-    ('api', 'address', 'http://localhost:9999/roundabout/'),
-    ('api', 'root-path', 'roundabout'),
-    ('zoom', 'auth-uri', 'https://zoom.us/oauth/authorize')
-    ('zoom', 'redirect-uri', 'http://localhost:9999/roundabout/api/v1/zoom/login/response'),
+    ('api', 'address', '"http://localhost:9999/roundabout/"'),
+    ('api', 'root-path', '"roundabout"'),
+    ('zoom', 'auth-uri', '"https://zoom.us/oauth/authorize"'),
+    ('zoom', 'token-uri', '"https://zoom.us/oauth/token"'),
+    ('zoom', 'redirect-uri', '"http://localhost:9999/roundabout/api/v1/zoom/login/response"'),
     ('zoom', 'client-id', NULL),
     ('zoom', 'client-secret', NULL),
-    ('zoom', 'authentication-timeout-hours', 22);
+    ('zoom', 'auth-result-page-uri', '"http://localhost:8080/zoom-auth-result"'),
+    ('zoom', 'authentication-timeout-hours', 22),
+    ('zoom', 'auth-max-user-wait-seconds', 8);
 
 -- Logs server side errors
 -- Severity levels are as follows:
@@ -735,19 +738,34 @@ CREATE TABLE zoom_authentication_attempt(
 
 )Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 
--- Used for storing session and refresh keys for Zoom users for request authentication
--- Token types: 1 = Session Token, 2 = Refresh Token
-CREATE TABLE zoom_authentication_token(
+-- Used for storing refresh tokens for Zoom users for request authentication
+-- Refresh tokens are used for acquiring session tokens
+-- Scope values are separated by :
+CREATE TABLE zoom_refresh_token(
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
-    token_type INT NOT NULL DEFAULT 1,
+    token VARCHAR(600) NOT NULL,
+    scope VARCHAR(128) NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expiration DATE NOT NULL,
+
+    INDEX zrt_expiration_idx (expiration),
+
+    CONSTRAINT zrt_u_owner_link_fk FOREIGN KEY zrt_u_owner_link_idx (user_id)
+        REFERENCES `user`(id) ON DELETE CASCADE
+
+)Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+-- Used for authenticating requests to Zoom
+CREATE TABLE zoom_session_token(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    refresh_token_id INT NOT NULL,
     token VARCHAR(600) NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expiration DATETIME NOT NULL,
 
     INDEX zat_expiration_idx (expiration),
 
-    CONSTRAINT zat_u_owner_link_fk FOREIGN KEY zat_u_owner_link_idx (user_id)
-        REFERENCES `user`(id) ON DELETE CASCADE
+    CONSTRAINT zst_master_token_ref_fk FOREIGN KEY zst_master_token_ref_idx (refresh_token_id)
+        REFERENCES zoom_refresh_token(id) ON DELETE CASCADE
 
 )Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;

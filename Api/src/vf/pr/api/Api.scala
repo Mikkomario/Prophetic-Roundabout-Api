@@ -20,6 +20,7 @@ import Globals.executionContext
 import utopia.flow.time.Now
 import vf.pr.api.database.model.logging.RequestLogModel
 import vf.pr.api.model.partial.logging.RequestLogData
+import vf.pr.api.rest.zoom.ZoomNode
 
 import javax.servlet.annotation.MultipartConfig
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
@@ -108,7 +109,8 @@ class Api extends HttpServlet
 					case Some(rootPath) => rootPath/"api"
 					case None => Path("api")
 				}
-				val requestHandler = RequestHandler[AuthorizedContext](Map("v1" -> ExodusResources.default),
+				val requestHandler = RequestHandler[AuthorizedContext](
+					Map("v1" -> (ExodusResources.default :+ ZoomNode)),
 					Some(path)) { AuthorizedContext(_) { error => Log("Api.request.context", error) } }
 				
 				settings -> requestHandler

@@ -1,6 +1,11 @@
 package vf.pr.api.util
 
+import utopia.bunnymunch.jawn.JsonBunny
+import utopia.disciple.apache.Gateway
+import utopia.disciple.http.request.Timeout
 import utopia.flow.async.ThreadPool
+import utopia.flow.parse.JSONReader
+import utopia.flow.time.TimeExtensions._
 import utopia.vault.database.ConnectionPool
 
 import scala.concurrent.ExecutionContext
@@ -22,6 +27,11 @@ object Globals
 	 * The connection pool used in this project for database interactions
 	 */
 	val connectionPool = new ConnectionPool()
+	/**
+	 * Gateway used for making requests to Zoom servers
+	 */
+	val zoomGateway = new Gateway(Vector(JsonBunny, JSONReader), maximumTimeout = Timeout(30.seconds, 30.seconds),
+		allowBodyParameters = false, allowJsonInUriParameters = false)
 	
 	
 	// COMPUTED ------------------------------------

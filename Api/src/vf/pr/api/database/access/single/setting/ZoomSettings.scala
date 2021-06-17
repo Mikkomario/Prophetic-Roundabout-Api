@@ -8,18 +8,28 @@ import utopia.flow.time.TimeExtensions._
  * @since 16.6.2021, v0.1
  */
 object ZoomSettings extends SettingsAccess("zoom",
-	Map("auth-uri" -> 15.minutes, "client-id" -> 12.hours, "client-secret" -> 12.hours,
-		"authentication-timeout-hours" -> 1.hours))
+	Map("auth-uri" -> 15.minutes, "token-uri" -> 15.minutes,
+		"client-id" -> 12.hours, "client-secret" -> 12.hours,
+		"authentication-timeout-hours" -> 2.hours, "auth-max-user-wait-seconds" -> 2.hours))
 {
 	/**
 	 * @return Address on Zoom server that provides authentication
 	 */
 	def authenticationUri = requiredString("auth-uri")
+	/**
+	 * @return Address on Zoom server that returns Zoom access tokens
+	 */
+	def tokenUri = requiredString("token-uri")
 	
 	/**
 	 * @return Uri that will receive the authentication result from Zoom
 	 */
 	def redirectUri = requiredString("redirect-uri")
+	/**
+	 * @return Uri where the user will be redirected to when the initial Zoom authentication
+	 *         process finishes (optional)
+	 */
+	def resultPageUri = apply("auth-result-page-uri").string
 	
 	/**
 	 * @return Application-specific client id
@@ -29,9 +39,17 @@ object ZoomSettings extends SettingsAccess("zoom",
 	 * @return Application-specific client secret
 	 */
 	def clientSecret = requiredString("client-secret")
+	/**
+	 * @return Application-specific client id and client secret as a pair
+	 */
+	def clientIdAndSecret = clientId.flatMap { clientId => clientSecret.map { clientId -> _ } }
 	
 	/**
 	 * @return Timeout applied for authentication attempts
 	 */
 	def authTimeout = apply("authentication-timeout-hours").doubleOr(22.0).hours
+	/**
+	 * @return Timeout after which user is redirected, regardless of whether an authentication finished or not
+	 */
+	def maxUserWaitDuration = apply("auth-max-user-wait-seconds").doubleOr(10.0).seconds
 }
