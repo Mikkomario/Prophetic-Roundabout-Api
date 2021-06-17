@@ -769,3 +769,13 @@ CREATE TABLE zoom_session_token(
         REFERENCES zoom_refresh_token(id) ON DELETE CASCADE
 
 )Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+
+-- Contains more information about a user
+CREATE TABLE user_roundabout_settings(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    time_zone_id VARCHAR(64),
+    is_zoom_pro_account BOOLEAN NOT NULL DEFAULT FALSE,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deprecated_after DATETIME
+
+)Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
