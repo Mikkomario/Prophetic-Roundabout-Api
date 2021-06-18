@@ -4,7 +4,7 @@ import utopia.bunnymunch.jawn.JsonBunny
 import utopia.flow.datastructure.immutable.{Constant, Model, Value}
 import utopia.flow.generic.ValueUnwraps._
 import utopia.vault.nosql.factory.FromValidatedRowModelFactory
-import vf.pr.api.database.Tables
+import vf.pr.api.database.RoundaboutTables
 import vf.pr.api.model.partial.SettingData
 import vf.pr.api.model.stored.Setting
 
@@ -15,7 +15,7 @@ import vf.pr.api.model.stored.Setting
  */
 object SettingFactory extends FromValidatedRowModelFactory[Setting]
 {
-	override def table = Tables.setting
+	override def table = RoundaboutTables.setting
 	
 	override protected def fromValidatedModel(model: Model[Constant]) = Setting(model("id"),
 		SettingData(model("category"), model("field"), model("jsonValue").string match

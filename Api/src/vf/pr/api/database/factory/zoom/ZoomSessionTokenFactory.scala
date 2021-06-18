@@ -5,7 +5,7 @@ import utopia.flow.generic.ValueUnwraps._
 import utopia.flow.time.Now
 import utopia.vault.nosql.factory.{Deprecatable, FromValidatedRowModelFactory}
 import utopia.vault.sql.SqlExtensions._
-import vf.pr.api.database.Tables
+import vf.pr.api.database.RoundaboutTables
 import vf.pr.api.model.partial.zoom.ZoomSessionTokenData
 import vf.pr.api.model.stored.zoom.ZoomSessionToken
 
@@ -23,7 +23,7 @@ object ZoomSessionTokenFactory extends FromValidatedRowModelFactory[ZoomSessionT
 	
 	// IMPLEMENTED  ------------------------------
 	
-	override def table = Tables.zoomSessionToken
+	override def table = RoundaboutTables.zoomSessionToken
 	
 	override def nonDeprecatedCondition = table(expirationAttName) > Now.toValue
 	

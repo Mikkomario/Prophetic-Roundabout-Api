@@ -5,7 +5,7 @@ import utopia.flow.generic.ValueUnwraps._
 import utopia.flow.time.Today
 import utopia.vault.nosql.factory.{Deprecatable, FromRowFactoryWithTimestamps, FromValidatedRowModelFactory}
 import utopia.vault.sql.SqlExtensions._
-import vf.pr.api.database.Tables
+import vf.pr.api.database.RoundaboutTables
 import vf.pr.api.model.partial.zoom.ZoomRefreshTokenData
 import vf.pr.api.model.stored.zoom.ZoomRefreshToken
 
@@ -24,7 +24,7 @@ object ZoomRefreshTokenFactory extends FromValidatedRowModelFactory[ZoomRefreshT
 	
 	// IMPLEMENTED  ------------------------------
 	
-	override def table = Tables.zoomRefreshToken
+	override def table = RoundaboutTables.zoomRefreshToken
 	
 	override def creationTimePropertyName = "created"
 	

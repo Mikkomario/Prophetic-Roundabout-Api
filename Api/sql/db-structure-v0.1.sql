@@ -773,9 +773,15 @@ CREATE TABLE zoom_session_token(
 -- Contains more information about a user
 CREATE TABLE user_roundabout_settings(
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
     time_zone_id VARCHAR(64),
-    is_zoom_pro_account BOOLEAN NOT NULL DEFAULT FALSE,
+    owns_pro_zoom_account BOOLEAN NOT NULL DEFAULT FALSE,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deprecated_after DATETIME
+    deprecated_after DATETIME,
+
+    INDEX urs_deprecation_idx (deprecated_after),
+
+    CONSTRAINT urs_u_settings_owner_ref_fk FOREIGN KEY urs_u_settings_owner_ref_idx (user_id)
+        REFERENCES `user`(id) ON DELETE CASCADE
 
 )Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;

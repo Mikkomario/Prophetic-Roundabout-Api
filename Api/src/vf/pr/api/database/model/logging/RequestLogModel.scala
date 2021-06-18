@@ -6,7 +6,7 @@ import utopia.flow.generic.ValueConversions._
 import utopia.nexus.http.Path
 import utopia.vault.model.immutable.Storable
 import utopia.vault.model.template.DataInserter
-import vf.pr.api.database.Tables
+import vf.pr.api.database.RoundaboutTables
 import vf.pr.api.model.partial.logging.RequestLogData
 import vf.pr.api.model.stored.logging.RequestLog
 
@@ -15,7 +15,7 @@ import scala.concurrent.duration.Duration
 
 object RequestLogModel extends DataInserter[RequestLogModel, RequestLog, RequestLogData]
 {
-	override def table = Tables.request
+	override def table = RoundaboutTables.request
 	
 	override def apply(data: RequestLogData): RequestLogModel = apply(None, Some(data.method), data.path,
 		Some(data.status), Some(data.created), Some(data.duration))

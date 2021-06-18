@@ -4,7 +4,7 @@ import utopia.flow.datastructure.immutable.Value
 import utopia.flow.generic.ValueConversions._
 import utopia.vault.model.immutable.StorableWithFactory
 import utopia.vault.model.template.DataInserter
-import vf.pr.api.database.Tables
+import vf.pr.api.database.RoundaboutTables
 import vf.pr.api.database.factory.zoom.ZoomRefreshTokenFactory
 import vf.pr.api.model.partial.zoom.ZoomRefreshTokenData
 import vf.pr.api.model.stored.zoom.ZoomRefreshToken
@@ -23,7 +23,7 @@ object ZoomRefreshTokenModel extends DataInserter[ZoomRefreshTokenModel, ZoomRef
 	
 	// IMPLEMENTED  ------------------------------
 	
-	override def table = Tables.zoomRefreshToken
+	override def table = RoundaboutTables.zoomRefreshToken
 	
 	override def apply(data: ZoomRefreshTokenData) = apply(None, Some(data.userId),
 		Some(data.value), Some(data.scope.mkString(":")), Some(data.created), Some(data.expiration))

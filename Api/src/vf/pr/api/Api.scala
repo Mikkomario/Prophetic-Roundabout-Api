@@ -14,12 +14,12 @@ import utopia.nexus.rest.RequestHandler
 import utopia.nexus.servlet.HttpExtensions._
 import utopia.vault.database.Connection
 import utopia.vault.util.{ErrorHandling, ErrorHandlingPrinciple}
-import vf.pr.api.database.Tables
 import vf.pr.api.database.access.single.setting.ApiSettings
 import Globals.executionContext
 import utopia.flow.time.Now
 import vf.pr.api.database.model.logging.RequestLogModel
 import vf.pr.api.model.partial.logging.RequestLogData
+import vf.pr.api.rest.extensions.ExodusExtensions
 import vf.pr.api.rest.zoom.ZoomNode
 
 import javax.servlet.annotation.MultipartConfig
@@ -48,13 +48,14 @@ class Api extends HttpServlet
 	// INITIAL CODE    -----------------------
 	
 	// Sets up Exodus
-	println("Setting up Exodus context")
-	ExodusContext.setup(Globals.executionContext, Globals.connectionPool, Tables.databaseName) { (error, message) =>
+	ExodusContext.setup(Globals.executionContext, Globals.connectionPool,
+		"prophetic_roundabout_db") { (error, message) =>
 		Log.withoutConnection("Exodus.context", message, Some(error))
 	}
 	Connection.modifySettings { _.copy(driver = Some("org.mariadb.jdbc.Driver")) }
 	ErrorHandling.defaultPrinciple = ErrorHandlingPrinciple.Custom { error =>
 		Log.withoutConnection("Api.db", error = Some(error)) }
+	ExodusExtensions.applyAll()
 	
 	
 	// IMPLEMENTED METHODS    ----------------

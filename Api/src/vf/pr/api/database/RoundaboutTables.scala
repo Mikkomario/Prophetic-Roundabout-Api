@@ -1,24 +1,15 @@
 package vf.pr.api.database
 
+import utopia.exodus.database.Tables
 import utopia.vault.model.immutable.Table
-import vf.pr.api.util.Globals
-import vf.pr.api.util.Globals.executionContext
 
 /**
  * An access point to all database tables in this project
  * @author Mikko Hilpinen
  * @since 6.6.2021, v0.1
  */
-object Tables extends utopia.vault.database.Tables(Globals.connectionPool)
+object RoundaboutTables
 {
-	// ATTRIBUTES   -----------------------------
-	
-	/**
-	 * Name of the database used in this project
-	 */
-	val databaseName = "prophetic_roundabout_db"
-	
-	
 	// COMPUTED ---------------------------------
 	
 	/**
@@ -39,6 +30,11 @@ object Tables extends utopia.vault.database.Tables(Globals.connectionPool)
 	def request = apply("request")
 	
 	/**
+	 * @return A table that contains Roundabout-specific user settings
+	 */
+	def userSettings = apply("user_roundabout_settings")
+	
+	/**
 	 * @return Table that records (first time) Zoom authentication attempts
 	 */
 	def zoomAuthAttempt = apply("zoom_authentication_attempt")
@@ -54,5 +50,5 @@ object Tables extends utopia.vault.database.Tables(Globals.connectionPool)
 	
 	// OTHER    ---------------------------------
 	
-	private def apply(tableName: String): Table = apply(databaseName, tableName)
+	private def apply(tableName: String): Table = Tables(tableName)
 }
