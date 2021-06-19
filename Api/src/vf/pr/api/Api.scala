@@ -21,6 +21,7 @@ import utopia.access.http.Method
 import utopia.flow.time.Now
 import vf.pr.api.database.model.logging.RequestLogModel
 import vf.pr.api.model.partial.logging.RequestLogData
+import vf.pr.api.rest.data.TimeZonesNode
 import vf.pr.api.rest.extensions.ExodusExtensions
 import vf.pr.api.rest.zoom.ZoomNode
 
@@ -122,7 +123,7 @@ class Api extends HttpServlet
 					case None => Path("api")
 				}
 				val requestHandler = RequestHandler[AuthorizedContext](
-					Map("v1" -> (ExodusResources.default :+ ZoomNode)),
+					Map("v1" -> (ExodusResources.default ++ Vector(ZoomNode, TimeZonesNode))),
 					Some(path)) { AuthorizedContext(_) { error => Log("Api.request.context", error) } }
 				
 				settings -> requestHandler
