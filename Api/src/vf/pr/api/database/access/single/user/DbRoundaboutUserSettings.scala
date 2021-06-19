@@ -50,6 +50,14 @@ object DbRoundaboutUserSettings extends SingleRowModelAccess[RoundaboutUserSetti
 		// OTHER    -------------------------------
 		
 		/**
+		 * @param connection Implicit DB connection
+		 * @return Roundabout-specific settings for this user (inserted if necessary)
+		 */
+		def pullOrInsert()(implicit connection: Connection) = pull.getOrElse {
+			model.insert(RoundaboutUserSettingsData(userId))
+		}
+		
+		/**
 		 * Updates this user's settings
 		 * @param timeZoneId This user's new time zone
 		 * @param ownsProZoomAccount Whether this user owns a pro Zoom account

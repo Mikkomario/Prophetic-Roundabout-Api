@@ -31,18 +31,17 @@ object ExodusExtensions
 			applied = true
 			// Adds /roundabout to users/me/settings
 			MySettingsNode.extendWith(FollowImplementation.withChild(MyRoundaboutSettingsNode))
-			// Adds roundabout settings as ("roundabout") to the successful GET users/me/settings response
+			// Adds roundabout settings (as "roundabout") to the successful GET users/me/settings response
 			MySettingsNode.extendWith(SessionUseCaseImplementation(Get) { (session, connection, _, _, default) =>
 				default.value match {
 					case success: Result.Success =>
 						implicit val c: Connection = connection
-						DbUser(session.userId).roundaboutSettings.pull match
-						{
-							case Some(roundaboutSettings) =>
-								success.copy(data = success.data.getModel +
-									Constant("roundabout", roundaboutSettings.toModel))
-							case None => success
-						}
+						val settings = DbUser(session.userId).roundaboutSettings.pullOrInsert()
+						val isZoomAuthorized = DbUser(session.userId).zoomRefreshToken.nonEmpty
+						val roundaboutSettingsModel = settings.toModel +
+							Constant(MyRoundaboutSettingsNode.zoomLinkAttName, isZoomAuthorized)
+						
+						success.copy(data = success.data.getModel + Constant("roundabout", roundaboutSettingsModel))
 					case failure: Result => failure
 				}
 			})
