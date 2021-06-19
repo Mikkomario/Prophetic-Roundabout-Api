@@ -12,11 +12,16 @@
         <element id="module-output" name="Nexus" />
         <element id="module-output" name="NexusForTomcat" />
         <element id="module-output" name="Vault" />
+        <element id="module-output" name="Disciple" />
       </element>
       <element id="directory" name="lib">
         <element id="library" level="project" name="mariadb-java-client-1" />
         <element id="library" level="project" name="servlet-api" />
         <element id="library" level="application" name="scala-sdk-2.13.3" />
+        <element id="library" level="project" name="commons-codec-1" />
+        <element id="library" level="project" name="commons-logging-1" />
+        <element id="library" level="project" name="httpclient-4" />
+        <element id="library" level="project" name="httpcore-4" />
       </element>
       <element id="file-copy" path="$PROJECT_DIR$/Api/web/web.xml" />
     </root>

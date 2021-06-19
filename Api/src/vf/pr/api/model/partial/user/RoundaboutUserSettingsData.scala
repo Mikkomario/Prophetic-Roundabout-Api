@@ -22,5 +22,5 @@ case class RoundaboutUserSettingsData(userId: Int, timeZoneId: Option[String] = 
 	extends ModelConvertible
 {
 	override def toModel = Model(Vector("user_id" -> userId, "time_zone_id" -> timeZoneId,
-		"created" -> created))
+		"owns_pro_zoom_account" -> ownsProZoomAccount, "created" -> created))
 }

@@ -9,6 +9,7 @@ import utopia.exodus.util.ExodusContext
 import utopia.flow.parse.JsonParser
 import utopia.flow.time.TimeExtensions._
 import utopia.flow.util.CollectionExtensions._
+import utopia.flow.util.StringExtensions._
 import utopia.nexus.http.{Path, ServerSettings}
 import utopia.nexus.rest.RequestHandler
 import utopia.nexus.servlet.HttpExtensions._
@@ -16,6 +17,7 @@ import utopia.vault.database.Connection
 import utopia.vault.util.{ErrorHandling, ErrorHandlingPrinciple}
 import vf.pr.api.database.access.single.setting.ApiSettings
 import Globals.executionContext
+import utopia.access.http.Method
 import utopia.flow.time.Now
 import vf.pr.api.database.model.logging.RequestLogModel
 import vf.pr.api.model.partial.logging.RequestLogData
@@ -60,7 +62,24 @@ class Api extends HttpServlet
 	
 	// IMPLEMENTED METHODS    ----------------
 	
-	override def doGet(req: HttpServletRequest, res: HttpServletResponse) =
+	override def service(req: HttpServletRequest, resp: HttpServletResponse) =
+	{
+		// Default implementation doesn't support PATCH, so skips some validations from parent if possible
+		if (Method.values.exists { _.name ~== req.getMethod })
+			handleRequest(req, resp)
+		else
+			super.service(req, resp)
+	}
+	
+	override def doGet(req: HttpServletRequest, resp: HttpServletResponse) = handleRequest(req, resp)
+	override def doPost(req: HttpServletRequest, resp: HttpServletResponse) = handleRequest(req, resp)
+	override def doPut(req: HttpServletRequest, resp: HttpServletResponse) = handleRequest(req, resp)
+	override def doDelete(req: HttpServletRequest, resp: HttpServletResponse) = handleRequest(req, resp)
+	
+	
+	// OTHER	------------------------------
+	
+	private def handleRequest(req: HttpServletRequest, res: HttpServletResponse) =
 	{
 		// Basic setup needs to succeed in order to process requests
 		setup match
@@ -91,14 +110,6 @@ class Api extends HttpServlet
 				Log.withoutConnection("Api.setup", error = Some(exception))
 		}
 	}
-	
-	override def doPost(request: HttpServletRequest, response: HttpServletResponse) = doGet(request, response)
-	override def doPut(request: HttpServletRequest, response: HttpServletResponse) = doGet(request, response)
-	override def doDelete(request: HttpServletRequest, response: HttpServletResponse) = doGet(request, response)
-	override def doHead(request: HttpServletRequest, response: HttpServletResponse) = doGet(request, response)
-	
-	
-	// OTHER	------------------------------
 	
 	// Uses cached settings or reads them
 	private def setup = cachedSetup.getOrElse {
