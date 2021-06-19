@@ -4,6 +4,7 @@ import utopia.access.http.Headers
 import utopia.access.http.Method.{Get, Post}
 import utopia.access.http.Status.{Accepted, BadRequest, InternalServerError, Unauthorized}
 import utopia.disciple.http.request.{Request, StringBody}
+import utopia.exodus.database.access.single.DbUser
 import utopia.exodus.rest.util.AuthorizedContext
 import utopia.exodus.util.ExodusContext.uuidGenerator
 import utopia.flow.async.AsyncExtensions._
@@ -18,6 +19,7 @@ import utopia.nexus.result.Result
 import utopia.vault.database.Connection
 import vf.pr.api.database.access.single.setting.ZoomSettings
 import vf.pr.api.database.access.single.zoom.DbZoomAuthAttempt
+import vf.pr.api.database.ExodusDbExtensions._
 import vf.pr.api.database.model.zoom.{ZoomAuthAttemptModel, ZoomRefreshTokenModel, ZoomSessionTokenModel}
 import vf.pr.api.model.error.RequestFailedException
 import vf.pr.api.model.partial.zoom.{ZoomAuthAttemptData, ZoomRefreshTokenData, ZoomSessionTokenData}
@@ -47,20 +49,32 @@ object ZoomLoginNode extends ResourceWithChildren[AuthorizedContext]
 		// Uses session auth
 		context.sessionKeyAuthorized { (session, connection) =>
 			implicit val c: Connection = connection
-			// Reads required settings
-			ZoomSettings.authenticationUri.flatMap { authenticationUri =>
-				ZoomSettings.redirectUri.flatMap { redirectUri =>
-					ZoomSettings.clientId.map { clientId =>
-						// Records a new authentication attempt to the DB
-						val token = uuidGenerator.next()
-						ZoomAuthAttemptModel.insert(ZoomAuthAttemptData(session.userId, token))
-						// Redirects the client to the correct url
-						Result.Redirect(s"$authenticationUri?response_type=code&redirect_uri=$redirectUri&client_id=$clientId&state=$token")
-					}
+			// Checks whether the user has already been authenticated in Zoom
+			// Case: Already authorized => redirects to success result page or returns with status
+			if (DbUser(session.userId).isZoomAuthorized)
+				ZoomSettings.resultPageUri match
+				{
+					case Some(resultUri) => Result.Redirect(resultUri + "/success")
+					case None => Result.Success(Value.empty, description = Some("Already authorized"))
 				}
-			}.getOrMap { error =>
-				Log.error("Zoom.login", error)
-				Result.Failure(InternalServerError, "Required server side specifications are missing")
+			// Case: Not yet authorized => redirects the client to Zoom authorization
+			else
+			{
+				// Reads required settings
+				ZoomSettings.authenticationUri.flatMap { authenticationUri =>
+					ZoomSettings.redirectUri.flatMap { redirectUri =>
+						ZoomSettings.clientId.map { clientId =>
+							// Records a new authentication attempt to the DB
+							val token = uuidGenerator.next()
+							ZoomAuthAttemptModel.insert(ZoomAuthAttemptData(session.userId, token))
+							// Redirects the client to the correct url
+							Result.Redirect(s"$authenticationUri?response_type=code&redirect_uri=$redirectUri&client_id=$clientId&state=$token")
+						}
+					}
+				}.getOrMap { error =>
+					Log.error("Zoom.login", error)
+					Result.Failure(InternalServerError, "Required server side specifications are missing")
+				}
 			}
 		}
 	}
