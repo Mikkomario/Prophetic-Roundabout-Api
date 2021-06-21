@@ -31,6 +31,6 @@ object ZoomRefreshTokenFactory extends FromValidatedRowModelFactory[ZoomRefreshT
 	override def nonDeprecatedCondition = table(expirationAttName) > Today.toValue
 	
 	override protected def fromValidatedModel(model: Model[Constant]) = ZoomRefreshToken(model("id"),
-		ZoomRefreshTokenData(model("userId"), model("token"), model("scope").getString.split(':').toVector,
-			model("created"), model(expirationAttName)))
+		ZoomRefreshTokenData(model("userId"), model("token"), model("scope"), model("created"),
+			model(expirationAttName)))
 }

@@ -26,7 +26,7 @@ object ZoomRefreshTokenModel extends DataInserter[ZoomRefreshTokenModel, ZoomRef
 	override def table = RoundaboutTables.zoomRefreshToken
 	
 	override def apply(data: ZoomRefreshTokenData) = apply(None, Some(data.userId),
-		Some(data.value), Some(data.scope.mkString(":")), Some(data.created), Some(data.expiration))
+		Some(data.value), Some(data.scope).filter { _.nonEmpty }, Some(data.created), Some(data.expiration))
 	
 	override protected def complete(id: Value, data: ZoomRefreshTokenData) = ZoomRefreshToken(id.getInt, data)
 	

@@ -9,6 +9,7 @@ import utopia.exodus.rest.util.AuthorizedContext
 import utopia.exodus.util.ExodusContext.uuidGenerator
 import utopia.flow.async.AsyncExtensions._
 import utopia.flow.datastructure.immutable.{Model, Value}
+import utopia.flow.generic.ModelConvertible
 import utopia.flow.generic.ValueConversions._
 import utopia.flow.time.Now
 import utopia.flow.time.TimeExtensions._
@@ -52,11 +53,8 @@ object ZoomLoginNode extends ResourceWithChildren[AuthorizedContext]
 			// Checks whether the user has already been authenticated in Zoom
 			// Case: Already authorized => redirects to success result page or returns with status
 			if (DbUser(session.userId).isZoomAuthorized)
-				ZoomSettings.resultPageUri match
-				{
-					case Some(resultUri) => Result.Redirect(resultUri + "/success")
-					case None => Result.Success(Value.empty, description = Some("Already authorized"))
-				}
+				Result.Success(NextDestination("Already authorized",
+					ZoomSettings.resultPageUri.map { _ + "?success=true" }, isAuthorized = true).toModel)
 			// Case: Not yet authorized => redirects the client to Zoom authorization
 			else
 			{
@@ -68,7 +66,9 @@ object ZoomLoginNode extends ResourceWithChildren[AuthorizedContext]
 							val token = uuidGenerator.next()
 							ZoomAuthAttemptModel.insert(ZoomAuthAttemptData(session.userId, token))
 							// Redirects the client to the correct url
-							Result.Redirect(s"$authenticationUri?response_type=code&redirect_uri=$redirectUri&client_id=$clientId&state=$token")
+							Result.Success(NextDestination("Authorization required",
+								Some(s"$authenticationUri?response_type=code&redirect_uri=$redirectUri&client_id=$clientId&state=$token"))
+								.toModel)
 						}
 					}
 				}.getOrMap { error =>
@@ -81,6 +81,13 @@ object ZoomLoginNode extends ResourceWithChildren[AuthorizedContext]
 	
 	
 	// NESTED   ----------------------------------
+	
+	case class NextDestination(description: String, url: Option[String] = None, isAuthorized: Boolean = false)
+		extends ModelConvertible
+	{
+		override def toModel = Model(Vector(
+			"url" -> url, "description" -> description, "is_authorized" -> isAuthorized))
+	}
 	
 	object ZoomLoginResponseNode extends LeafResource[Context]
 	{
@@ -124,8 +131,7 @@ object ZoomLoginNode extends ResourceWithChildren[AuthorizedContext]
 												{
 													// Case: Operation finished before timeout, adds the result to
 													// the redirect uri
-													case Success(result) =>
-														s"/${if (result.isSuccess) "success" else "failure"}"
+													case Success(result) => s"?success=${result.isSuccess}"
 													// Case: Timeout
 													case Failure(_) => ""
 												}
@@ -156,70 +162,72 @@ object ZoomLoginNode extends ResourceWithChildren[AuthorizedContext]
 								Log.error.withoutConnection("Zoom.login.db", error = Some(error))
 								Result.Failure(InternalServerError, error.getMessage)
 							}
-						case None => Result.Failure(BadRequest, "Query parameter 'state' required")
+						case None =>
+							// TODO: Handle cases where user arrives without state (redirecting them to login)
+							Result.Failure(BadRequest, "Query parameter 'state' required")
 					}
 				case None => Result.Failure(BadRequest, "Query parameter 'code' required")
 			}
 			
 			result.toResponse
 		}
-	}
-	
-	private def consumeCode(userId: Int, code: String) =
-	{
-		// Makes sure the required settings have been initialized
-		ZoomSettings.clientIdAndSecret.flatMap { case (clientId, clientSecret) =>
-			ZoomSettings.redirectUri.flatMap { redirectUri =>
-				ZoomSettings.tokenUri.map { tokenUri =>
-					// Acquires the session and refresh tokens from Zoom,
-					// using the specified code
-					val requestTime = Now.toInstant
-					zoomGateway.modelResponseFor(Request(tokenUri, Post,
-						headers = Headers.empty.withBasicAuthorization(clientId, clientSecret),
-						body = Some(StringBody.urlEncodedForm(Model(Vector(
-							"grant_type" -> "authorization_code", "code" -> code, "redirect_uri" -> redirectUri))))))
-						// Checks the response status and attempts to parse / process tokens
-						.tryMapIfSuccess { response =>
-							if (response.isSuccess)
-							{
-								response.body("refresh_token").string match
+		
+		private def consumeCode(userId: Int, code: String) =
+		{
+			// Makes sure the required settings have been initialized
+			ZoomSettings.clientIdAndSecret.flatMap { case (clientId, clientSecret) =>
+				ZoomSettings.redirectUri.flatMap { redirectUri =>
+					ZoomSettings.tokenUri.map { tokenUri =>
+						// Acquires the session and refresh tokens from Zoom,
+						// using the specified code
+						val requestTime = Now.toInstant
+						zoomGateway.modelResponseFor(Request(tokenUri, Post,
+							headers = Headers.empty.withBasicAuthorization(clientId, clientSecret),
+							body = Some(StringBody.urlEncodedForm(Model(Vector(
+								"grant_type" -> "authorization_code", "code" -> code, "redirect_uri" -> redirectUri))))))
+							// Checks the response status and attempts to parse / process tokens
+							.tryMapIfSuccess { response =>
+								if (response.isSuccess)
 								{
-									case Some(refreshToken) =>
-										connectionPool.tryWith { implicit connection =>
-											val insertedRefreshToken = ZoomRefreshTokenModel.insert(
-												ZoomRefreshTokenData(userId, refreshToken,
-													response.body("scope").getString.split(':').toVector))
-											response.body("access_token").string.foreach { sessionToken =>
-												val sessionExpiration = response.body("expires_id").int match
-												{
-													case Some(durationSeconds) =>
-														requestTime + (durationSeconds - 10).seconds
-													case None => requestTime + 1.hours - 10.seconds
+									response.body("refresh_token").string match
+									{
+										case Some(refreshToken) =>
+											connectionPool.tryWith { implicit connection =>
+												val insertedRefreshToken = ZoomRefreshTokenModel.insert(
+													ZoomRefreshTokenData(userId, refreshToken,
+														response.body("scope").getString))
+												response.body("access_token").string.foreach { sessionToken =>
+													val sessionExpiration = response.body("expires_id").int match
+													{
+														case Some(durationSeconds) =>
+															requestTime + (durationSeconds - 10).seconds
+														case None => requestTime + 1.hours - 10.seconds
+													}
+													ZoomSessionTokenModel.insert(ZoomSessionTokenData(
+														insertedRefreshToken.id, sessionToken,
+														expiration = sessionExpiration))
 												}
-												ZoomSessionTokenModel.insert(ZoomSessionTokenData(
-													insertedRefreshToken.id, sessionToken,
-													expiration = sessionExpiration))
 											}
-										}
-									case None => Failure(new NoSuchElementException(
-										s"No 'refresh_token' parameter in zoom auth response body. Available keys: [${
-											response.body.attributeNames.mkString(", ")}]"))
+										case None => Failure(new NoSuchElementException(
+											s"No 'refresh_token' parameter in zoom auth response body. Available keys: [${
+												response.body.attributeNames.mkString(", ")}]"))
+									}
 								}
+								else
+									Failure(new RequestFailedException(s"Zoom auth server responded with status ${
+										response.status} and body ${response.body.toJson}"))
 							}
-							else
-								Failure(new RequestFailedException(s"Zoom auth server responded with status ${
-									response.status} and body ${response.body.toJson}"))
-						}
+					}
 				}
-			}
-		}.getOrMap { error => Future.successful(Failure(error)) }
-	}
-	
-	private def closeAuthAttempt(attemptId: Int) =
-	{
-		connectionPool.tryWith { implicit connection => DbZoomAuthAttempt(attemptId).close() }.failure
-			.foreach { error =>
-				Log.withoutConnection("Zoom.login.response.close", error = Some(error))
-			}
+			}.getOrMap { error => Future.successful(Failure(error)) }
+		}
+		
+		private def closeAuthAttempt(attemptId: Int) =
+		{
+			connectionPool.tryWith { implicit connection => DbZoomAuthAttempt(attemptId).close() }.failure
+				.foreach { error =>
+					Log.withoutConnection("Zoom.login.response.close", error = Some(error))
+				}
+		}
 	}
 }
