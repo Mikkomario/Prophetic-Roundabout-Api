@@ -47,6 +47,15 @@ object RoundaboutTables
 	 */
 	def zoomSessionToken = apply("zoom_session_token")
 	
+	/**
+	 * @return Table that contains scheduled Roundabout meetings
+	 */
+	def meeting = apply("meeting")
+	/**
+	 * @return Table that contains start urls for scheduled Roundabout meetings
+	 */
+	def meetingStartUrl = apply("meeting_start_url")
+	
 	
 	// OTHER    ---------------------------------
 	

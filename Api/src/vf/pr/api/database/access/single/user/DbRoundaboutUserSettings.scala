@@ -8,6 +8,9 @@ import vf.pr.api.database.model.user.RoundaboutUserSettingsModel
 import vf.pr.api.model.partial.user.RoundaboutUserSettingsData
 import vf.pr.api.model.stored.user.RoundaboutUserSettings
 
+import java.time.ZoneId
+import scala.util.Try
+
 /**
  * Used for accessing individual Roundabout-specific user settings instances
  * @author Mikko Hilpinen
@@ -40,6 +43,16 @@ object DbRoundaboutUserSettings extends SingleRowModelAccess[RoundaboutUserSetti
 	
 	case class DbSingleUserRoundaboutSettings(userId: Int) extends UniqueModelAccess[RoundaboutUserSettings]
 	{
+		// COMPUTED -------------------------------
+		
+		/**
+		 * @param connection DB Connection (implicit)
+		 * @return The time zone id used by this user. None if not specified / not valid.
+		 */
+		def timeZoneId(implicit connection: Connection) = pullAttribute(model.timeZoneAttName).string
+			.flatMap { zoneName => Try { ZoneId.of(zoneName) }.toOption }
+		
+		
 		// IMPLEMENTED  ---------------------------
 		
 		override def factory = DbRoundaboutUserSettings.factory

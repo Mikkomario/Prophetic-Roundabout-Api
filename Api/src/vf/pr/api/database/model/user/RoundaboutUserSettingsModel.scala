@@ -19,6 +19,10 @@ object RoundaboutUserSettingsModel
 	 * Name of the property that contains settings deprecation time
 	 */
 	val deprecationAttName = "deprecatedAfter"
+	/**
+	 * Name of the property that contains this user's time zone id
+	 */
+	val timeZoneAttName = "timeZoneId"
 	
 	
 	// COMPUTED ----------------------------
@@ -64,6 +68,6 @@ case class RoundaboutUserSettingsModel(id: Option[Int] = None, userId: Option[In
 	
 	override def factory = RoundaboutUserSettingsModel.factory
 	
-	override def valueProperties = Vector("id" -> id, "userId" -> userId, "timeZoneId" -> timeZoneId,
+	override def valueProperties = Vector("id" -> id, "userId" -> userId, timeZoneAttName -> timeZoneId,
 		"ownsProZoomAccount" -> ownsProZoomAccount, "created" -> created, deprecationAttName -> deprecatedAfter)
 }

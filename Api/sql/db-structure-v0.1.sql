@@ -376,10 +376,6 @@ CREATE TABLE organization_user_role
 
 -- 1 = Owner (all rights)
 -- 2 = Admin/Steward (all rights except owner-specific rights)
--- 3 = Manager (rights to modify users)
--- 4 = Developer (rights to create & edit resources and to publish)
--- 5 = Publisher (Read access to data + publish rights)
--- 5 = Reader (Read only access to data)
 INSERT INTO organization_user_role (id) VALUES (1), (2);
 
 -- Links to descriptions of user roles
@@ -651,6 +647,28 @@ CREATE TABLE user_session
 )Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 
 
+-- ROUNDABOUT EXODUS EXTENSIONS ----------------------------------
+
+-- Task 7 / Description 17: Hosting a meeting
+INSERT INTO task (id) VALUES (7);
+INSERT INTO description (id, role_id, language_id, `text`) VALUES
+    (17, 1, 1, 'Host a meeting');
+INSERT INTO task_description (task_id, description_id) VALUES
+    (7, 17);
+
+-- User Role 3 / Description 18: Host
+INSERT INTO organization_user_role (id) VALUES
+    (3);
+INSERT INTO description (id, role_id, language_id, `text`) VALUES
+    (18, 1, 1, 'Host');
+INSERT INTO user_role_description (role_id, description_id) VALUES
+    (3, 18);
+
+-- Owners and hosts are allowed to host meetings
+INSERT INTO user_role_right (role_id, task_id) VALUES
+    (1, 7), (3, 7);
+
+
 -- PROPHETIC ROUNDABOUT TABLES  ----------------------------------
 
 -- Server side settings store
@@ -783,5 +801,44 @@ CREATE TABLE user_roundabout_settings(
 
     CONSTRAINT urs_u_settings_owner_ref_fk FOREIGN KEY urs_u_settings_owner_ref_idx (user_id)
         REFERENCES `user`(id) ON DELETE CASCADE
+
+)Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+
+-- Lists scheduled Roundabout meetings
+-- Join url is for participants
+CREATE TABLE meeting(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    zoom_id BIGINT NOT NULL,
+    zoom_uuid VARCHAR(128) NOT NULL,
+    host_id INT NOT NULL,
+    host_organization_id INT NOT NULL,
+    name VARCHAR(96) NOT NULL,
+    start_time DATETIME NOT NULL,
+    planned_duration_minutes INT NOT NULL,
+    password VARCHAR(10) NOT NULL,
+    join_url VARCHAR(255) NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX m_start_idx (start_time),
+
+    CONSTRAINT m_u_meeting_host_ref_fk FOREIGN KEY m_u_meeting_host_ref_idx (host_id)
+        REFERENCES `user`(id) ON DELETE CASCADE,
+    CONSTRAINT m_o_parent_organization_ref_fk FOREIGN KEY m_o_parent_organization_ref_idx (host_organization_id)
+        REFERENCES organization(id) ON DELETE CASCADE
+
+)Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+
+-- Contains meeting start urls. These are only for the meeting hosts and expire after 2 hours.
+CREATE TABLE meeting_start_url(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    meeting_id INT NOT NULL,
+    url VARCHAR(255) NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expiration DATETIME NOT NULL,
+
+    INDEX msu_expiration_idx (expiration),
+
+    CONSTRAINT msu_m_meeting_ref_fk FOREIGN KEY msu_m_meeting_ref_idx (meeting_id)
+        REFERENCES meeting(id) ON DELETE CASCADE
 
 )Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
