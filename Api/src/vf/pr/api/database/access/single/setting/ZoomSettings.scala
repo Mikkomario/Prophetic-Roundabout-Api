@@ -8,9 +8,9 @@ import utopia.flow.time.TimeExtensions._
  * @since 16.6.2021, v0.1
  */
 object ZoomSettings extends SettingsAccess("zoom",
-	Map("auth-uri" -> 15.minutes, "token-uri" -> 15.minutes,
+	Map("auth-uri" -> 15.minutes, "token-uri" -> 15.minutes,  "api-base-uri" -> 15.minutes,
 		"client-id" -> 12.hours, "client-secret" -> 12.hours,
-		"authentication-timeout-hours" -> 2.hours, "auth-max-user-wait-seconds" -> 2.hours))
+		"authentication-timeout-hours" -> 2.hours, "max-user-wait-seconds" -> 2.hours))
 {
 	/**
 	 * @return Address on Zoom server that provides authentication
@@ -20,6 +20,10 @@ object ZoomSettings extends SettingsAccess("zoom",
 	 * @return Address on Zoom server that returns Zoom access tokens
 	 */
 	def tokenUri = requiredString("token-uri")
+	/**
+	 * @return Base address of the zoom api, which will be appended with the resource paths. Ends with /.
+	 */
+	def apiBaseUri = requiredString("api-base-uri")
 	
 	/**
 	 * @return Uri that will receive the authentication result from Zoom
@@ -49,7 +53,7 @@ object ZoomSettings extends SettingsAccess("zoom",
 	 */
 	def authTimeout = apply("authentication-timeout-hours").doubleOr(22.0).hours
 	/**
-	 * @return Timeout after which user is redirected, regardless of whether an authentication finished or not
+	 * @return Timeout after which user is answered, regardless of whether a request finished or not
 	 */
-	def maxUserWaitDuration = apply("auth-max-user-wait-seconds").doubleOr(10.0).seconds
+	def maxUserWaitDuration = apply("max-user-wait-seconds").doubleOr(10.0).seconds
 }

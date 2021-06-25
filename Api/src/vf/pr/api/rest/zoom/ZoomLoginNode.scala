@@ -194,8 +194,7 @@ object ZoomLoginNode extends ResourceWithChildren[AuthorizedContext]
 										case Some(refreshToken) =>
 											connectionPool.tryWith { implicit connection =>
 												val insertedRefreshToken = ZoomRefreshTokenModel.insert(
-													ZoomRefreshTokenData(userId, refreshToken,
-														response.body("scope").getString))
+													ZoomRefreshTokenData(userId, refreshToken))
 												response.body("access_token").string.foreach { sessionToken =>
 													val sessionExpiration = response.body("expires_id").int match
 													{

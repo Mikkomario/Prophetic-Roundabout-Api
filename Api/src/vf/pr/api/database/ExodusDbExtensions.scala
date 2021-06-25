@@ -3,7 +3,7 @@ package vf.pr.api.database
 import utopia.exodus.database.access.single.DbUser.DbSingleUser
 import utopia.vault.database.Connection
 import vf.pr.api.database.access.single.user.DbRoundaboutUserSettings
-import vf.pr.api.database.access.single.zoom.DbZoomRefreshToken
+import vf.pr.api.database.access.single.zoom.{DbZoomRefreshToken, DbZoomSessionToken}
 
 /**
  * This object contains extensions to database accessors in the Exodus project
@@ -23,6 +23,13 @@ object ExodusDbExtensions
 		 * @return An access point to this user's Zoom refresh token
 		 */
 		def zoomRefreshToken = DbZoomRefreshToken.forUserWithId(a.userId)
+		
+		/**
+		 * @param connection Implicit DB connection
+		 * @return An active zoom session token for that user
+		 */
+		def zoomSessionToken(implicit connection: Connection) =
+			DbZoomSessionToken.forUserWithId(a.userId)
 		/**
 		 * @param connection Implicit DB connection
 		 * @return Whether this user has been authorized via Zoom (= has a valid refresh token)

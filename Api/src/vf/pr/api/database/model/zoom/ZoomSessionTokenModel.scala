@@ -28,6 +28,15 @@ object ZoomSessionTokenModel extends DataInserter[ZoomSessionTokenModel, ZoomSes
 		Some(data.refreshTokenId), Some(data.value), Some(data.created), Some(data.expiration))
 	
 	override protected def complete(id: Value, data: ZoomSessionTokenData) = ZoomSessionToken(id.getInt, data)
+	
+	
+	// OTHER    ----------------------------------
+	
+	/**
+	 * @param tokenId A zoom refresh token id
+	 * @return A model with that id
+	 */
+	def withRefreshTokenId(tokenId: Int) = apply(refreshTokenId = Some(tokenId))
 }
 
 /**

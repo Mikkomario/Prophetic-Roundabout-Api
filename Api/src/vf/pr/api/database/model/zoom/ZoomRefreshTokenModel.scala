@@ -26,7 +26,7 @@ object ZoomRefreshTokenModel extends DataInserter[ZoomRefreshTokenModel, ZoomRef
 	override def table = RoundaboutTables.zoomRefreshToken
 	
 	override def apply(data: ZoomRefreshTokenData) = apply(None, Some(data.userId),
-		Some(data.value), Some(data.scope).filter { _.nonEmpty }, Some(data.created), Some(data.expiration))
+		Some(data.value), Some(data.created), Some(data.expiration))
 	
 	override protected def complete(id: Value, data: ZoomRefreshTokenData) = ZoomRefreshToken(id.getInt, data)
 	
@@ -46,12 +46,11 @@ object ZoomRefreshTokenModel extends DataInserter[ZoomRefreshTokenModel, ZoomRef
  * @since 16.6.2021, v0.1
  */
 case class ZoomRefreshTokenModel(id: Option[Int] = None, userId: Option[Int] = None, value: Option[String] = None,
-                                 scope: Option[String] = None, created: Option[Instant] = None,
-                                 expiration: Option[LocalDate] = None)
+                                 created: Option[Instant] = None, expiration: Option[LocalDate] = None)
 	extends StorableWithFactory[ZoomRefreshToken]
 {
 	override def factory = ZoomRefreshTokenModel.factory
 	
 	override def valueProperties = Vector("id" -> id, "userId" -> userId, "token" -> value,
-		"scope" -> scope, "created" -> created, "expiration" -> expiration)
+		"created" -> created, "expiration" -> expiration)
 }

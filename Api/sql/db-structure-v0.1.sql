@@ -693,7 +693,8 @@ INSERT INTO setting (category, field, json_value) VALUES
     ('zoom', 'client-secret', NULL),
     ('zoom', 'auth-result-page-uri', '"http://localhost:8080/zoom-auth-result"'),
     ('zoom', 'authentication-timeout-hours', 22),
-    ('zoom', 'auth-max-user-wait-seconds', 8);
+    ('zoom', 'max-user-wait-seconds', 8),
+    ('zoom', 'api-base-uri', '"https://api.zoom.us/v2/"');
 
 -- Logs server side errors
 -- Severity levels are as follows:

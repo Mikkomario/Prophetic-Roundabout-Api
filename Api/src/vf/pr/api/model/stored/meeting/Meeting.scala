@@ -1,6 +1,6 @@
 package vf.pr.api.model.stored.meeting
 
-import utopia.vault.model.template.Stored
+import utopia.metropolis.model.stored.StoredModelConvertible
 import vf.pr.api.model.partial.meeting.MeetingData
 
 /**
@@ -8,4 +8,4 @@ import vf.pr.api.model.partial.meeting.MeetingData
  * @author Mikko Hilpinen
  * @since 24.6.2021, v0.1
  */
-case class Meeting(id: Int, data: MeetingData) extends Stored[MeetingData, Int]
+case class Meeting(id: Int, data: MeetingData) extends StoredModelConvertible[MeetingData]

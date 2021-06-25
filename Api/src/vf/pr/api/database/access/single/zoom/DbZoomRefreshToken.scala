@@ -1,9 +1,16 @@
 package vf.pr.api.database.access.single.zoom
 
-import utopia.vault.nosql.access.{LatestModelAccess, SingleRowModelAccess}
+import utopia.flow.generic.ValueConversions._
+import utopia.flow.time.Now
+import utopia.flow.time.TimeExtensions._
+import utopia.vault.database.Connection
+import utopia.vault.nosql.access.{LatestModelAccess, SingleIdModelAccess, SingleRowModelAccess}
 import vf.pr.api.database.factory.zoom.ZoomRefreshTokenFactory
-import vf.pr.api.database.model.zoom.ZoomRefreshTokenModel
+import vf.pr.api.database.model.zoom.{ZoomRefreshTokenModel, ZoomSessionTokenModel}
+import vf.pr.api.model.partial.zoom.ZoomSessionTokenData
 import vf.pr.api.model.stored.zoom.ZoomRefreshToken
+
+import java.time.Instant
 
 /**
  * Used for accessing individual Zoom refresh tokens in DB
@@ -16,6 +23,8 @@ object DbZoomRefreshToken extends SingleRowModelAccess[ZoomRefreshToken]
 	
 	private def model = ZoomRefreshTokenModel
 	
+	private def sessionTokenModel = ZoomSessionTokenModel
+	
 	
 	// IMPLEMENTED  ------------------------------
 	
@@ -27,6 +36,12 @@ object DbZoomRefreshToken extends SingleRowModelAccess[ZoomRefreshToken]
 	// OTHER    ----------------------------------
 	
 	/**
+	 * @param tokenId Id of the targeted zoom refresh token
+	 * @return An access point to that token
+	 */
+	def apply(tokenId: Int) = DbSingleZoomRefreshToken(tokenId)
+	
+	/**
 	 * @param userId A user id
 	 * @return An access point to that user's refresh token
 	 */
@@ -34,6 +49,21 @@ object DbZoomRefreshToken extends SingleRowModelAccess[ZoomRefreshToken]
 	
 	
 	// NESTED   ----------------------------------
+	
+	case class DbSingleZoomRefreshToken(tokenId: Int)
+		extends SingleIdModelAccess[ZoomRefreshToken](tokenId, DbZoomRefreshToken.factory)
+	{
+		/**
+		 * Starts a new zoom session based on this refresh token
+		 * @param sessionToken Acquired session token
+		 * @param expiration Expiration time for the session token (default = within 55 minutes)
+		 * @param connection DB Connection (implicit)
+		 * @return Newly inserted session token
+		 */
+		def startSession(sessionToken: String, expiration: Instant = Now + 55.minutes)
+		                (implicit connection: Connection) =
+			sessionTokenModel.insert(ZoomSessionTokenData(tokenId, sessionToken, expiration = expiration))
+	}
 	
 	case class DbZoomUserRefreshToken(userId: Int) extends LatestModelAccess[ZoomRefreshToken]
 	{

@@ -11,9 +11,8 @@ import java.time.{Instant, LocalDate}
  * @since 16.6.2021, v0.1
  * @param userId Id of the user that owns this token
  * @param value Authentication token (string)
- * @param scope The scope of this token, which determines the access rights (default = empty)
  * @param created Creation / acquisition time of this token (default = Now)
  * @param expiration Expiration date of this token (default = after 15 years)
  */
-case class ZoomRefreshTokenData(userId: Int, value: String, scope: String = "",
-                                created: Instant = Now, expiration: LocalDate = Today + 15.years)
+case class ZoomRefreshTokenData(userId: Int, value: String, created: Instant = Now,
+                                expiration: LocalDate = Today + 15.years)
