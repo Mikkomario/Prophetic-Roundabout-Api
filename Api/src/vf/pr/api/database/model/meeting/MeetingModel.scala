@@ -22,9 +22,9 @@ object MeetingModel extends DataInserter[MeetingModel, Meeting, MeetingData]
 	val startTimeAttName = "startTime"
 	
 	/**
-	 * Default ordering to use in this table (based on meeting start time, from latest to earliest)
+	 * Default ordering to use in this table (based on meeting start time, from earliest to latest)
 	 */
-	lazy val defaultOrder = OrderBy.descending(startTimeColumn)
+	lazy val defaultOrder = OrderBy.ascending(startTimeColumn)
 	
 	
 	// COMPUTED --------------------------------

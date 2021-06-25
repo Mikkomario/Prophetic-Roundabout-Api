@@ -1,7 +1,7 @@
 package vf.pr.api.rest.extensions.organization
 
 import utopia.access.http.Method.Post
-import utopia.access.http.Status.{Accepted, BadRequest, Created, InternalServerError, Unauthorized}
+import utopia.access.http.Status.{Accepted, Created, InternalServerError, Unauthorized}
 import utopia.exodus.database.access.single.DbUser
 import utopia.exodus.rest.util.AuthorizedContext
 import utopia.flow.async.AsyncExtensions._
@@ -64,47 +64,43 @@ case class OrganizationMeetingsNode(organizationId: Int) extends LeafResource[Au
 				val userId = session.userId
 				
 				// Parses the meeting time
-				newMeeting.timeZoneId.flatMap { id => Try { ZoneId.of(id) }.toOption }
-					.orElse { DbUser(userId).roundaboutSettings.timeZoneId } match
+				val timeZoneId = newMeeting.timeZoneId.flatMap { id => Try { ZoneId.of(id) }.toOption }
+					.orElse { DbUser(userId).roundaboutSettings.timeZoneId }
+				val meetingTime = newMeeting.localStartTime
+					.atZone(timeZoneId.getOrElse(ZoneId.of("Z"))).toInstant
+				val password = newMeeting.password.filter { _.nonEmpty }.getOrElse { randomPassword }
+				val duration = newMeeting.estimatedDuration.getOrElse { 3.hours + 30.minutes }
+				
+				// Schedules a meeting in the Zoom
+				val zoomMeeting = NewZoomMeeting(newMeeting.name, meetingTime, duration, password)
+				val waitTimeout = context.request.parameters("timeout").int match
 				{
-					case Some(timeZoneId) =>
-						val meetingTime = newMeeting.localStartTime.atZone(timeZoneId).toInstant
-						val password = newMeeting.password.filter { _.nonEmpty }.getOrElse { randomPassword }
-						val duration = newMeeting.estimatedDuration.getOrElse { 3.hours + 30.minutes }
-						
-						// Schedules a meeting in the Zoom
-						val zoomMeeting = NewZoomMeeting(newMeeting.name, meetingTime, duration, password)
-						val waitTimeout = context.request.parameters("timeout").int match
+					case Some(timeout) => timeout.seconds
+					case None => ZoomSettings.maxUserWaitDuration
+				}
+				ZoomApi.push("users/me/meetings", userId, zoomMeeting,
+					postMeetingResponseSchema)
+					.tryFlatMapIfSuccess { processZoomResponse(_, zoomMeeting, userId, organizationId) }
+					// The maximum wait time (for user) is limited
+					.waitFor(waitTimeout) match
+				{
+					case Success(result) =>
+						result match
 						{
-							case Some(timeout) => timeout.seconds
-							case None => ZoomSettings.maxUserWaitDuration
-						}
-						ZoomApi.push("users/me/meetings", userId, zoomMeeting,
-							postMeetingResponseSchema)
-							.tryFlatMapIfSuccess { processZoomResponse(_, zoomMeeting, userId, organizationId) }
-							// The maximum wait time (for user) is limited
-							.waitFor(waitTimeout) match
-						{
-							case Success(result) =>
-								result match
+							case Success(meeting) => Result.Success(meeting.toModelWith(timeZoneId), Created)
+							case Failure(error) =>
+								// Logs failures
+								Log.error("Rest.meetings.post", error)
+								error match
 								{
-									case Success(meeting) => Result.Success(meeting.toModel, Created)
-									case Failure(error) =>
-										// Logs failures
-										Log.error("Rest.meetings.post", error)
-										error match
-										{
-											case authError: UnauthorizedException =>
-												Result.Failure(Unauthorized, authError.getMessage)
-											case e: Throwable => Result.Failure(InternalServerError, e.getMessage)
-										}
+									case authError: UnauthorizedException =>
+										Result.Failure(Unauthorized, authError.getMessage)
+									case e: Throwable => Result.Failure(InternalServerError, e.getMessage)
 								}
-							// Case: User wait timeout reached
-							case Failure(_) => Result.Success(Value.empty, Accepted,
-								Some("Meeting creation in progress"))
 						}
-					case None => Result.Failure(BadRequest,
-						"A valid time_zone_id must be provided in this request or in the user settings")
+					// Case: User wait timeout reached
+					case Failure(_) => Result.Success(Value.empty, Accepted,
+						Some("Meeting creation in progress"))
 				}
 			}
 		}
