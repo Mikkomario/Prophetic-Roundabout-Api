@@ -2,6 +2,7 @@ package vf.pr.api.database
 
 import utopia.exodus.database.access.single.DbUser.DbSingleUser
 import utopia.vault.database.Connection
+import vf.pr.api.database.access.many.DbMeetings
 import vf.pr.api.database.access.single.user.DbRoundaboutUserSettings
 import vf.pr.api.database.access.single.zoom.{DbZoomRefreshToken, DbZoomSessionToken}
 
@@ -23,7 +24,6 @@ object ExodusDbExtensions
 		 * @return An access point to this user's Zoom refresh token
 		 */
 		def zoomRefreshToken = DbZoomRefreshToken.forUserWithId(a.userId)
-		
 		/**
 		 * @param connection Implicit DB connection
 		 * @return An active zoom session token for that user
@@ -35,5 +35,12 @@ object ExodusDbExtensions
 		 * @return Whether this user has been authorized via Zoom (= has a valid refresh token)
 		 */
 		def isZoomAuthorized(implicit connection: Connection) = zoomRefreshToken.nonEmpty
+		
+		/**
+		 * @param connection Implicit DB connection
+		 * @return Upcoming and recent meetings in the organizations this user belongs to
+		 */
+		def upcomingAndRecentMeetings(implicit connection: Connection) =
+			DbMeetings.upcomingAndRecent.forUserWithId(a.userId)
 	}
 }

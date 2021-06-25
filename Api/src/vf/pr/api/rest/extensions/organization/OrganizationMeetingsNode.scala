@@ -110,6 +110,9 @@ case class OrganizationMeetingsNode(organizationId: Int) extends LeafResource[Au
 		}
 	}
 	
+	
+	// OTHER    -----------------------------------
+	
 	private def processZoomResponse(response: Model[Constant], meeting: NewZoomMeeting, userId: Int,
 	                                organizationId: Int) =
 	{

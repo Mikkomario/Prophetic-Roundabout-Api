@@ -4,6 +4,7 @@ import utopia.flow.datastructure.immutable.Value
 import utopia.flow.generic.ValueConversions._
 import utopia.vault.model.immutable.StorableWithFactory
 import utopia.vault.model.template.DataInserter
+import utopia.vault.sql.OrderBy
 import vf.pr.api.database.factory.meeting.MeetingFactory
 import vf.pr.api.model.partial.meeting.MeetingData
 import vf.pr.api.model.stored.meeting.Meeting
@@ -13,12 +14,30 @@ import scala.concurrent.duration.FiniteDuration
 
 object MeetingModel extends DataInserter[MeetingModel, Meeting, MeetingData]
 {
+	// ATTRIBUTES   ----------------------------
+	
+	/**
+	 * Name of the property that contains meeting start time
+	 */
+	val startTimeAttName = "startTime"
+	
+	/**
+	 * Default ordering to use in this table (based on meeting start time, from latest to earliest)
+	 */
+	lazy val defaultOrder = OrderBy.descending(startTimeColumn)
+	
+	
 	// COMPUTED --------------------------------
 	
 	/**
 	 * @return The factory used by this model
 	 */
 	def factory = MeetingFactory
+	
+	/**
+	 * @return Column that contains meeting start time
+	 */
+	def startTimeColumn = table(startTimeAttName)
 	
 	
 	// IMPLEMENTED  ---------------------------
@@ -44,10 +63,12 @@ case class MeetingModel(id: Option[Int] = None, zoomId: Option[Long] = None, zoo
                         joinUrl: Option[String] = None, created: Option[Instant] = None)
 	extends StorableWithFactory[Meeting]
 {
+	import MeetingModel._
+	
 	override def factory = MeetingModel.factory
 	
 	override def valueProperties = Vector("id" -> id, "zoomId" -> zoomId, "zoomUuid" -> zoomUuid, "hostId" -> hostId,
-		"hostOrganizationId" -> hostOrganizationId, "name" -> name, "startTime" -> startTime,
+		"hostOrganizationId" -> hostOrganizationId, "name" -> name, startTimeAttName -> startTime,
 		"plannedDurationMinutes" -> plannedDuration.map { _.toMinutes }, "password" -> password, "joinUrl" -> joinUrl,
 		"created" -> created)
 }
