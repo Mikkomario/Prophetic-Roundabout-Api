@@ -19,7 +19,7 @@ case class Meeting(id: Int, data: MeetingData) extends StoredModelConvertible[Me
 	 * @return A model based on this meeting, including start_time_local -property
 	 */
 	def toModelWithLocalTime(timeZoneId: ZoneId) = toModel +
-		Constant("start_time_local", data.startTime.atZone(timeZoneId).toLocalDateTime)
+		Constant("start_time_local", data.startTime.atZone(timeZoneId).toLocalDateTime.toString)
 	
 	/**
 	 * @param timeZoneId A time zone id (optional)

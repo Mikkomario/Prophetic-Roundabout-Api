@@ -5,6 +5,7 @@ import utopia.exodus.database.access.single.DbUser
 import utopia.exodus.rest.util.AuthorizedContext
 import utopia.flow.datastructure.immutable.Model
 import utopia.flow.generic.ValueConversions._
+import utopia.flow.time.TimeExtensions._
 import utopia.flow.util.CollectionExtensions._
 import utopia.nexus.http.Path
 import utopia.nexus.rest.LeafResource
@@ -34,14 +35,21 @@ object MyMeetingsNode extends LeafResource[AuthorizedContext]
 			implicit val c: Connection = connection
 			val userId = session.userId
 			// Reads the upcoming meetings and groups them based on whether the user is hosting them or not
-			val (otherMeetings, hostedMeetings) = DbUser(userId).upcomingAndRecentMeetings
-				.divideBy { _.hostId == userId }
-			// Forms a response based on the meetings
-			// Adds local meeting start time to the results
-			val timeZoneId = DbUser(userId).roundaboutSettings.timeZoneId
-			Result.Success(Model(Vector(
-				"hosting" -> hostedMeetings.map { _.toModelWith(timeZoneId) },
-				"other" -> otherMeetings.map { _.toModelWith(timeZoneId) })))
+			val allMeetings = DbUser(userId).upcomingAndRecentMeetings
+			// Checks whether Not Modified -response should be returned
+			if (context.request.headers.ifModifiedSince
+				.forall { threshold => allMeetings.exists { _.created > threshold } })
+			{
+				val (otherMeetings, hostedMeetings) = allMeetings.divideBy { _.hostId == userId }
+				// Forms a response based on the meetings
+				// Adds local meeting start time to the results
+				val timeZoneId = DbUser(userId).roundaboutSettings.timeZoneId
+				Result.Success(Model(Vector(
+					"hosting" -> hostedMeetings.map { _.toModelWith(timeZoneId) },
+					"other" -> otherMeetings.map { _.toModelWith(timeZoneId) })))
+			}
+			else
+				Result.NotModified
 		}
 	}
 }
