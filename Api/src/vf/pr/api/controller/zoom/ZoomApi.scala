@@ -134,10 +134,10 @@ object ZoomApi
 	
 	private def requestSessionToken(refreshToken: ZoomRefreshToken) =
 	{
-		ZoomSettings.authenticationUri.flatMap { authUri =>
+		ZoomSettings.tokenUri.flatMap { tokenUri =>
 			ZoomSettings.clientIdAndSecret.map { case (clientId, clientSecret) =>
 				val requestTime = Now.toInstant
-				zoomGateway.valueResponseFor(Request(authUri, Post,
+				zoomGateway.valueResponseFor(Request(tokenUri, Post,
 					headers = Headers.empty.withBasicAuthorization(clientId, clientSecret),
 					body = Some(StringBody.urlEncodedForm(Model(Vector(
 						"grant_type" -> "refresh_token", "refresh_token" -> refreshToken.value))))))
@@ -168,8 +168,9 @@ object ZoomApi
 									})
 								// Case: Successful response without a token => failure
 								case None => Failure(new RequestFailedException(
-									s"Couldn't find session token from the successful Zoom auth response body: ${
-										body.toJson}"))
+									s"Couldn't find session token from the successful (${
+										response.status}) Zoom auth response body: ${
+										response.body.getString}"))
 							}
 						}
 						else

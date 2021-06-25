@@ -1,7 +1,7 @@
 package vf.pr.api.rest.extensions.organization
 
 import utopia.access.http.Method.Post
-import utopia.access.http.Status.{Accepted, BadRequest, InternalServerError, Unauthorized}
+import utopia.access.http.Status.{Accepted, BadRequest, Created, InternalServerError, Unauthorized}
 import utopia.exodus.database.access.single.DbUser
 import utopia.exodus.rest.util.AuthorizedContext
 import utopia.flow.async.AsyncExtensions._
@@ -88,7 +88,7 @@ case class OrganizationMeetingsNode(organizationId: Int) extends LeafResource[Au
 							case Success(result) =>
 								result match
 								{
-									case Success(meeting) => Result.Success(meeting.toModel)
+									case Success(meeting) => Result.Success(meeting.toModel, Created)
 									case Failure(error) =>
 										// Logs failures
 										Log.error("Rest.meetings.post", error)

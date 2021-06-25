@@ -12,6 +12,7 @@ object NewMeeting extends FromModelFactoryWithSchema[NewMeeting]
 {
 	override val schema = ModelDeclaration("start_time_local" -> LocalDateTimeType, "name" -> StringType)
 	
+	// TODO: Add password validation
 	override protected def fromValidatedModel(model: Model[Constant]) = NewMeeting(model("name"),
 		model("start_time_local"), model("duration_minutes").int.filter { _ > 0 }.map { _.minutes },
 		model("password"), model("time_zone_id"))

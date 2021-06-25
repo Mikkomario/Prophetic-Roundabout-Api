@@ -651,22 +651,16 @@ CREATE TABLE user_session
 
 -- Task 7 / Description 17: Hosting a meeting
 INSERT INTO task (id) VALUES (7);
-INSERT INTO description (id, role_id, language_id, `text`) VALUES
-    (17, 1, 1, 'Host a meeting');
-INSERT INTO task_description (task_id, description_id) VALUES
-    (7, 17);
+INSERT INTO description (id, role_id, language_id, `text`) VALUES (17, 1, 1, 'Host a meeting');
+INSERT INTO task_description (task_id, description_id) VALUES (7, 17);
 
 -- User Role 3 / Description 18: Host
-INSERT INTO organization_user_role (id) VALUES
-    (3);
-INSERT INTO description (id, role_id, language_id, `text`) VALUES
-    (18, 1, 1, 'Host');
-INSERT INTO user_role_description (role_id, description_id) VALUES
-    (3, 18);
+INSERT INTO organization_user_role (id) VALUES (3);
+INSERT INTO description (id, role_id, language_id, `text`) VALUES (18, 1, 1, 'Host');
+INSERT INTO user_role_description (role_id, description_id) VALUES (3, 18);
 
 -- Owners and hosts are allowed to host meetings
-INSERT INTO user_role_right (role_id, task_id) VALUES
-    (1, 7), (3, 7);
+INSERT INTO user_role_right (role_id, task_id) VALUES (1, 7), (3, 7);
 
 
 -- PROPHETIC ROUNDABOUT TABLES  ----------------------------------
@@ -833,7 +827,7 @@ CREATE TABLE meeting(
 CREATE TABLE meeting_start_url(
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     meeting_id INT NOT NULL,
-    url VARCHAR(255) NOT NULL,
+    url VARCHAR(999) NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expiration DATETIME NOT NULL,
 
