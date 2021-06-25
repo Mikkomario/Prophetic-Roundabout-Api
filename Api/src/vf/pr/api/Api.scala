@@ -22,7 +22,7 @@ import utopia.flow.time.Now
 import vf.pr.api.database.model.logging.RequestLogModel
 import vf.pr.api.model.partial.logging.RequestLogData
 import vf.pr.api.rest.data.TimeZonesNode
-import vf.pr.api.rest.extensions.ExodusExtensions
+import vf.pr.api.rest.extensions.ExodusRestExtensions
 import vf.pr.api.rest.zoom.ZoomNode
 
 import javax.servlet.annotation.MultipartConfig
@@ -58,7 +58,7 @@ class Api extends HttpServlet
 	Connection.modifySettings { _.copy(driver = Some("org.mariadb.jdbc.Driver")) }
 	ErrorHandling.defaultPrinciple = ErrorHandlingPrinciple.Custom { error =>
 		Log.withoutConnection("Api.db", error = Some(error)) }
-	ExodusExtensions.applyAll()
+	ExodusRestExtensions.applyAll()
 	
 	
 	// IMPLEMENTED METHODS    ----------------

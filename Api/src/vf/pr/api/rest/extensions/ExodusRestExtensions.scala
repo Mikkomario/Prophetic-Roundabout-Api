@@ -2,6 +2,7 @@ package vf.pr.api.rest.extensions
 
 import utopia.access.http.Method.Get
 import utopia.exodus.database.access.single.DbUser
+import utopia.exodus.rest.resource.organization.OrganizationNode
 import utopia.exodus.rest.resource.scalable.SessionUseCaseImplementation
 import utopia.exodus.rest.resource.user.MySettingsNode
 import utopia.flow.datastructure.immutable.Constant
@@ -10,6 +11,7 @@ import utopia.nexus.rest.scalable.FollowImplementation
 import utopia.nexus.result.Result
 import utopia.vault.database.Connection
 import vf.pr.api.database.ExodusDbExtensions._
+import vf.pr.api.rest.extensions.organization.OrganizationMeetingsNode
 import vf.pr.api.rest.extensions.user.MyRoundaboutSettingsNode
 
 /**
@@ -17,7 +19,7 @@ import vf.pr.api.rest.extensions.user.MyRoundaboutSettingsNode
  * @author Mikko Hilpinen
  * @since 18.6.2021, v0.1
  */
-object ExodusExtensions
+object ExodusRestExtensions
 {
 	private var applied = false
 	
@@ -45,8 +47,9 @@ object ExodusExtensions
 					case failure: Result => failure
 				}
 			})
-			// Adds /meetings to organizations/X
-			// TODO: Implement
+			// Adds /meetings to organizations/${id}
+			OrganizationNode.addFollow { organizationId =>
+				FollowImplementation.withChild(OrganizationMeetingsNode(organizationId)) }
 		}
 	}
 }
