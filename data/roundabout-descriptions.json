@@ -1,0 +1,14 @@
+[
+{
+	"target": "task", 
+	"en": {
+		"7": "host a meeting"
+	}
+}, 
+{
+	"target": "user_role", 
+	"en": {
+		"3": "host"
+	}
+}
+]
