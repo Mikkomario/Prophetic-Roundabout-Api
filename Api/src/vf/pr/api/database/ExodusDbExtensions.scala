@@ -1,6 +1,6 @@
 package vf.pr.api.database
 
-import utopia.exodus.database.access.single.DbUser.DbSingleUser
+import utopia.citadel.database.access.single.DbUser.DbSingleUser
 import utopia.vault.database.Connection
 import vf.pr.api.database.access.many.DbMeetings
 import vf.pr.api.database.access.single.user.DbRoundaboutUserSettings

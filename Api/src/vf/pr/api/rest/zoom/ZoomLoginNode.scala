@@ -3,8 +3,8 @@ package vf.pr.api.rest.zoom
 import utopia.access.http.Headers
 import utopia.access.http.Method.{Get, Post}
 import utopia.access.http.Status.{Accepted, BadRequest, InternalServerError, Unauthorized}
+import utopia.citadel.database.access.single.DbUser
 import utopia.disciple.http.request.{Request, StringBody}
-import utopia.exodus.database.access.single.DbUser
 import utopia.exodus.rest.util.AuthorizedContext
 import utopia.exodus.util.ExodusContext.uuidGenerator
 import utopia.flow.async.AsyncExtensions._

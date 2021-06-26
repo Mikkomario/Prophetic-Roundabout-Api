@@ -1,6 +1,6 @@
 package vf.pr.api.database
 
-import utopia.exodus.database.Tables
+import utopia.citadel.database.Tables
 import utopia.vault.model.immutable.Table
 
 /**

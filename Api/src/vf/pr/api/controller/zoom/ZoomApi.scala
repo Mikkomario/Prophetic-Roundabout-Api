@@ -2,8 +2,8 @@ package vf.pr.api.controller.zoom
 
 import utopia.access.http.{Headers, Method}
 import utopia.access.http.Method.{Get, Post}
+import utopia.citadel.database.access.single.DbUser
 import utopia.disciple.http.request.{Request, StringBody}
-import utopia.exodus.database.access.single.DbUser
 import utopia.flow.async.AsyncExtensions.{FutureTry, _}
 import utopia.flow.datastructure.immutable.{Model, ModelDeclaration}
 import utopia.flow.generic.StringType

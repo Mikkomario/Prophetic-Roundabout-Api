@@ -1,7 +1,7 @@
 package vf.pr.api.database.access.many
 
-import utopia.exodus.database.Tables
-import utopia.exodus.database.model.organization.MembershipModel
+import utopia.citadel.database.Tables
+import utopia.citadel.database.model.organization.MembershipModel
 import utopia.flow.generic.ValueConversions._
 import utopia.flow.time.Now
 import utopia.flow.time.TimeExtensions._
