@@ -94,7 +94,7 @@ CREATE TABLE request(
     path VARCHAR(128),
     status_code INT NOT NULL DEFAULT 200,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    duration_micro_seconds INT NOT NULL DEFAULT 0,
+    duration_milli_seconds INT NOT NULL DEFAULT 0,
 
     INDEX r_creation_idx (created)
 
