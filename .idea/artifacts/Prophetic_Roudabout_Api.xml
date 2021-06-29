@@ -13,6 +13,7 @@
         <element id="module-output" name="NexusForTomcat" />
         <element id="module-output" name="Vault" />
         <element id="module-output" name="Disciple" />
+        <element id="module-output" name="Citadel" />
       </element>
       <element id="directory" name="lib">
         <element id="library" level="project" name="mariadb-java-client-1" />
