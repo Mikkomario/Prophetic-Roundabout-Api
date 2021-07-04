@@ -66,8 +66,11 @@ case class OrganizationMeetingsNode(organizationId: Int) extends LeafResource[Au
 				// Parses the meeting time
 				val timeZoneId = newMeeting.timeZoneId.flatMap { id => Try { ZoneId.of(id) }.toOption }
 					.orElse { DbUser(userId).roundaboutSettings.timeZoneId }
-				val meetingTime = newMeeting.localStartTime
-					.atZone(timeZoneId.getOrElse(ZoneId.of("Z"))).toInstant
+				val meetingTime = newMeeting.startTime match
+				{
+					case Right(time) => time
+					case Left(localTime) => localTime.atZone(timeZoneId.getOrElse(ZoneId.of("Z"))).toInstant
+				}
 				val password = newMeeting.password.filter { _.nonEmpty }.getOrElse { randomPassword }
 				val duration = newMeeting.estimatedDuration.getOrElse { 3.hours + 30.minutes }
 				
