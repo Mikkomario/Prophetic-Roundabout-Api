@@ -123,11 +123,11 @@ CREATE TABLE zoom_refresh_token(
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     token VARCHAR(700) NOT NULL,
-    scope VARCHAR(128) NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expiration DATE NOT NULL,
+    deprecated_after DATETIME,
 
-    INDEX zrt_expiration_idx (expiration),
+    INDEX zrt_expiration_idx (deprecated_after, expiration),
 
     CONSTRAINT zrt_u_owner_link_fk FOREIGN KEY zrt_u_owner_link_idx (user_id)
         REFERENCES `user`(id) ON DELETE CASCADE

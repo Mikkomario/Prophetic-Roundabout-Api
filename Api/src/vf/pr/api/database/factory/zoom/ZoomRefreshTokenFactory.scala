@@ -28,7 +28,7 @@ object ZoomRefreshTokenFactory extends FromValidatedRowModelFactory[ZoomRefreshT
 	
 	override def creationTimePropertyName = "created"
 	
-	override def nonDeprecatedCondition = table(expirationAttName) > Today.toValue
+	override def nonDeprecatedCondition = table("deprecatedAfter").isNull && table(expirationAttName) > Today.toValue
 	
 	override protected def fromValidatedModel(model: Model[Constant]) = ZoomRefreshToken(model("id"),
 		ZoomRefreshTokenData(model("userId"), model("token"), model("created"), model(expirationAttName)))

@@ -16,7 +16,9 @@ import utopia.vault.database.Connection
 import vf.pr.api.database.access.single.setting.ZoomSettings
 import vf.pr.api.database.ExodusDbExtensions._
 import vf.pr.api.database.access.single.zoom.DbZoomRefreshToken
+import vf.pr.api.database.model.zoom.ZoomRefreshTokenModel
 import vf.pr.api.model.error.{RequestFailedException, UnauthorizedException}
+import vf.pr.api.model.partial.zoom.ZoomRefreshTokenData
 import vf.pr.api.model.stored.zoom.ZoomRefreshToken
 import vf.pr.api.util.Globals._
 import vf.pr.api.util.Log
@@ -145,33 +147,47 @@ object ZoomApi
 						if (response.isSuccess)
 						{
 							val body = response.body.getModel
-							body("access_token").string match
-							{
-								// Case: Successful response with a token
-								case Some(token) =>
-									// Saves the token to the DB and then returns it
-									val expiration = requestTime + (response.body("expires_in").int match
-									{
-										case Some(expirationSeconds) => expirationSeconds.seconds - 5.minutes
-										case None => 55.minutes
-									})
-									Success(connectionPool.tryWith { implicit connection =>
-										DbZoomRefreshToken(refreshToken.id).startSession(token, expiration)
-									} match
-									{
-										case Success(sessionToken) => sessionToken.value
-										// Logs possible errors without failing the whole process
-										case Failure(error) =>
-											Log.withoutConnection("Zoom.api.auth.refresh.save",
-												error = Some(error))
-											token
-									})
-								// Case: Successful response without a token => failure
-								case None => Failure(new RequestFailedException(
-									s"Couldn't find session token from the successful (${
-										response.status}) Zoom auth response body: ${
-										response.body.getString}"))
-							}
+							connectionPool.tryWith { implicit connection =>
+								// Checks whether a new refresh token should be updated to the db
+								val newRefreshToken = body("refresh_token").string match
+								{
+									case Some(token) =>
+										// Case: Refresh token didn't change
+										if (token == refreshToken.value)
+											refreshToken
+										// Case: Refresh token changed => inserts a new token to DB
+										else
+										{
+											DbZoomRefreshToken(refreshToken.id).deprecate()
+											ZoomRefreshTokenModel.insert(
+												ZoomRefreshTokenData(refreshToken.userId, token))
+										}
+									case None =>
+										Log.warning(s"No 'refresh_token' property in Zoom (refresh) auth response. Available properties: [${
+											body.attributeNames.mkString(", ")}]")
+										refreshToken
+								}
+								
+								// Handles the access token next
+								body("access_token").string match
+								{
+									// Case: Successful response with a token
+									case Some(token) =>
+										// Saves the token to the DB and then returns it
+										val expiration = requestTime + (response.body("expires_in").int match
+										{
+											case Some(expirationSeconds) => expirationSeconds.seconds - 5.minutes
+											case None => 55.minutes
+										})
+										Success(DbZoomRefreshToken(newRefreshToken.id)
+											.startSession(token, expiration).value)
+									// Case: Successful response without a token => failure
+									case None => Failure(new RequestFailedException(
+										s"Couldn't find session token from the successful (${
+											response.status}) Zoom auth response body: ${
+											response.body.getString}"))
+								}
+							}.flatten
 						}
 						else
 							Failure(new RequestFailedException(s"Zoom authentication request was met with ${

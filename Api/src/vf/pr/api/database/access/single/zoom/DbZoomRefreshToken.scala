@@ -4,7 +4,7 @@ import utopia.flow.generic.ValueConversions._
 import utopia.flow.time.Now
 import utopia.flow.time.TimeExtensions._
 import utopia.vault.database.Connection
-import utopia.vault.nosql.access.{LatestModelAccess, SingleIdModelAccess, SingleRowModelAccess}
+import utopia.vault.nosql.access.{SingleIdModelAccess, SingleRowModelAccess, UniqueModelAccess}
 import vf.pr.api.database.factory.zoom.ZoomRefreshTokenFactory
 import vf.pr.api.database.model.zoom.{ZoomRefreshTokenModel, ZoomSessionTokenModel}
 import vf.pr.api.model.partial.zoom.ZoomSessionTokenData
@@ -54,6 +54,13 @@ object DbZoomRefreshToken extends SingleRowModelAccess[ZoomRefreshToken]
 		extends SingleIdModelAccess[ZoomRefreshToken](tokenId, DbZoomRefreshToken.factory)
 	{
 		/**
+		 * @param connection Implicit DB connection
+		 * @return Whether this token was deprecated (false if it was already deprecated or id was not valid)
+		 */
+		def deprecate()(implicit connection: Connection) =
+			model.nowDeprecated.updateWhere(condition && DbZoomRefreshToken.factory.nonDeprecatedCondition) > 0
+		
+		/**
 		 * Starts a new zoom session based on this refresh token
 		 * @param sessionToken Acquired session token
 		 * @param expiration Expiration time for the session token (default = within 55 minutes)
@@ -65,17 +72,12 @@ object DbZoomRefreshToken extends SingleRowModelAccess[ZoomRefreshToken]
 			sessionTokenModel.insert(ZoomSessionTokenData(tokenId, sessionToken, expiration = expiration))
 	}
 	
-	case class DbZoomUserRefreshToken(userId: Int) extends LatestModelAccess[ZoomRefreshToken]
+	case class DbZoomUserRefreshToken(userId: Int) extends UniqueModelAccess[ZoomRefreshToken]
 	{
-		// COMPUTED   ----------------------------
-		
-		private def condition = DbZoomRefreshToken.mergeCondition(model.withUserId(userId))
-		
-		
 		// IMPLEMENTED  --------------------------
 		
 		override def factory = DbZoomRefreshToken.factory
 		
-		override def globalCondition = Some(condition)
+		override def condition = DbZoomRefreshToken.mergeCondition(model.withUserId(userId))
 	}
 }

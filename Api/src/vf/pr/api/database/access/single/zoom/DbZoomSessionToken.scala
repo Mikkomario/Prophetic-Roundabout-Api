@@ -3,7 +3,7 @@ package vf.pr.api.database.access.single.zoom
 import utopia.vault.database.Connection
 import utopia.vault.nosql.access.SingleRowModelAccess
 import vf.pr.api.database.factory.zoom.ZoomSessionTokenFactory
-import vf.pr.api.database.model.zoom.{ZoomRefreshTokenModel, ZoomSessionTokenModel}
+import vf.pr.api.database.model.zoom.ZoomRefreshTokenModel
 import vf.pr.api.model.stored.zoom.ZoomSessionToken
 
 /**
@@ -33,5 +33,5 @@ object DbZoomSessionToken extends SingleRowModelAccess[ZoomSessionToken]
 	 * @return An active session token for that user id, if available
 	 */
 	def forUserWithId(userId: Int)(implicit connection: Connection) =
-		factory.getWithJoin(refreshTokenModel.table, refreshTokenModel.withUserId(userId).toCondition)
+		factory.getWithJoin(refreshTokenModel.table, mergeCondition(refreshTokenModel.withUserId(userId).toCondition))
 }
