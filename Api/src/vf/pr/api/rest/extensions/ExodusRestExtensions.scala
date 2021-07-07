@@ -4,7 +4,7 @@ import utopia.access.http.Method.Get
 import utopia.citadel.database.access.single.DbUser
 import utopia.exodus.rest.resource.organization.OrganizationNode
 import utopia.exodus.rest.resource.scalable.SessionUseCaseImplementation
-import utopia.exodus.rest.resource.user.{MeNode, MySettingsNode}
+import utopia.exodus.rest.resource.user.me.{MeNode, MySettingsNode}
 import utopia.flow.datastructure.immutable.Constant
 import utopia.flow.generic.ValueConversions._
 import utopia.nexus.rest.scalable.FollowImplementation
