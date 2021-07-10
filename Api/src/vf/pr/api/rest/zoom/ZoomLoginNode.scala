@@ -45,6 +45,8 @@ object ZoomLoginNode extends ResourceWithChildren[AuthorizedContext]
 	
 	override def allowedMethods = Vector(Get)
 	
+	// FIXME: This implementation exposes client id and secret. Implement a more secure solution
+	//  (The current implementation is like this because the user needs to be authorized for the redirect to work)
 	override def toResponse(remainingPath: Option[Path])(implicit context: AuthorizedContext) =
 	{
 		// Uses session auth
@@ -196,7 +198,7 @@ object ZoomLoginNode extends ResourceWithChildren[AuthorizedContext]
 												val insertedRefreshToken = ZoomRefreshTokenModel.insert(
 													ZoomRefreshTokenData(userId, refreshToken))
 												response.body("access_token").string.foreach { sessionToken =>
-													val sessionExpiration = response.body("expires_id").int match
+													val sessionExpiration = response.body("expires_in").int match
 													{
 														case Some(durationSeconds) =>
 															requestTime + (durationSeconds - 10).seconds
