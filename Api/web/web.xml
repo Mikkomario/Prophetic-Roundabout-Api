@@ -12,7 +12,7 @@
 			<param-value>
 				Accept,Accept-Encoding,Accept-Language,Access-Control-Request-Method,
 				Access-Control-Request-Headers,Authorization,Connection,Content-Type,Host,Origin,Referer,Token-Id,
-				User-Agent, X-Requested-With, X-Style
+				User-Agent, X-Requested-With, X-Style, If-Modified-Since
 			</param-value>
 		</init-param>
 		<init-param>
