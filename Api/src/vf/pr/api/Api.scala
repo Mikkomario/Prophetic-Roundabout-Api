@@ -124,7 +124,7 @@ class Api extends HttpServlet
 				}
 				val requestHandler = RequestHandler[AuthorizedContext](
 					Map("v1" -> (ExodusResources.default ++ Vector(ZoomNode, TimeZonesNode))),
-					Some(path)) { AuthorizedContext(_) { error => Log("Api.request.context", error) } }
+					Some(path)) { AuthorizedContext(_) }
 				
 				settings -> requestHandler
 			}

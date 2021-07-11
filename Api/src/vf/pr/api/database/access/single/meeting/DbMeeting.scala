@@ -1,7 +1,7 @@
 package vf.pr.api.database.access.single.meeting
 
 import utopia.vault.database.Connection
-import utopia.vault.nosql.access.SingleRowModelAccess
+import utopia.vault.nosql.access.single.model.SingleRowModelAccess
 import vf.pr.api.database.factory.meeting.MeetingFactory
 import vf.pr.api.database.model.meeting.{MeetingModel, MeetingStartUrlModel}
 import vf.pr.api.model.partial.meeting.{MeetingData, MeetingStartUrlData}

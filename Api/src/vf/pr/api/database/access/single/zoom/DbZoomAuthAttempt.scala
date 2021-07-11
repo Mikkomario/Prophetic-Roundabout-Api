@@ -3,7 +3,8 @@ package vf.pr.api.database.access.single.zoom
 import utopia.flow.generic.ValueConversions._
 import utopia.flow.time.Now
 import utopia.vault.database.Connection
-import utopia.vault.nosql.access.{SingleIdModelAccess, SingleRowModelAccess}
+import utopia.vault.nosql.access.single.model.SingleRowModelAccess
+import utopia.vault.nosql.access.single.model.distinct.SingleIdModelAccess
 import vf.pr.api.database.access.single.setting.ZoomSettings
 import vf.pr.api.database.factory.zoom.ZoomAuthAttemptFactory
 import vf.pr.api.database.model.zoom.ZoomAuthAttemptModel

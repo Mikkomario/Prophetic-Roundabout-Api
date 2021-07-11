@@ -4,7 +4,8 @@ import utopia.flow.generic.ValueConversions._
 import utopia.flow.time.Now
 import utopia.flow.time.TimeExtensions._
 import utopia.vault.database.Connection
-import utopia.vault.nosql.access.{SingleIdModelAccess, SingleRowModelAccess, UniqueModelAccess}
+import utopia.vault.nosql.access.single.model.SingleRowModelAccess
+import utopia.vault.nosql.access.single.model.distinct.{SingleIdModelAccess, UniqueModelAccess}
 import vf.pr.api.database.factory.zoom.ZoomRefreshTokenFactory
 import vf.pr.api.database.model.zoom.{ZoomRefreshTokenModel, ZoomSessionTokenModel}
 import vf.pr.api.model.partial.zoom.ZoomSessionTokenData

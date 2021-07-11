@@ -6,7 +6,7 @@ import utopia.flow.generic.ValueConversions._
 import utopia.flow.time.Now
 import utopia.flow.time.TimeExtensions._
 import utopia.vault.database.Connection
-import utopia.vault.nosql.access.ManyRowModelAccess
+import utopia.vault.nosql.access.many.model.ManyRowModelAccess
 import utopia.vault.sql.{Condition, Select, Where}
 import utopia.vault.sql.SqlExtensions._
 import vf.pr.api.database.factory.meeting.MeetingFactory

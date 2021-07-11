@@ -3,7 +3,7 @@ package vf.pr.api.database.factory.meeting
 import utopia.flow.datastructure.immutable.{Constant, Model}
 import utopia.flow.generic.ValueUnwraps._
 import utopia.flow.time.TimeExtensions._
-import utopia.vault.nosql.factory.FromValidatedRowModelFactory
+import utopia.vault.nosql.factory.row.model.FromValidatedRowModelFactory
 import vf.pr.api.database.RoundaboutTables
 import vf.pr.api.model.partial.meeting.MeetingData
 import vf.pr.api.model.stored.meeting.Meeting

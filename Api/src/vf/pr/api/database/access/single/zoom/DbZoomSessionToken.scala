@@ -1,7 +1,7 @@
 package vf.pr.api.database.access.single.zoom
 
 import utopia.vault.database.Connection
-import utopia.vault.nosql.access.SingleRowModelAccess
+import utopia.vault.nosql.access.single.model.SingleRowModelAccess
 import vf.pr.api.database.factory.zoom.ZoomSessionTokenFactory
 import vf.pr.api.database.model.zoom.ZoomRefreshTokenModel
 import vf.pr.api.model.stored.zoom.ZoomSessionToken

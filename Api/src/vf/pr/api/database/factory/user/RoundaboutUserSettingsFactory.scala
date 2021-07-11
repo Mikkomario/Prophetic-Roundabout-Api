@@ -2,7 +2,8 @@ package vf.pr.api.database.factory.user
 
 import utopia.flow.datastructure.immutable.{Constant, Model}
 import utopia.flow.generic.ValueUnwraps._
-import utopia.vault.nosql.factory.{Deprecatable, FromValidatedRowModelFactory}
+import utopia.vault.nosql.factory.row.model.FromValidatedRowModelFactory
+import utopia.vault.nosql.template.Deprecatable
 import vf.pr.api.database.RoundaboutTables
 import vf.pr.api.model.partial.user.RoundaboutUserSettingsData
 import vf.pr.api.model.stored.user.RoundaboutUserSettings

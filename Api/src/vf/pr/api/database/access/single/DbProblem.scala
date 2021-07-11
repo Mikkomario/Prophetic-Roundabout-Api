@@ -3,7 +3,8 @@ package vf.pr.api.database.access.single
 import utopia.flow.time.Now
 import utopia.flow.util.ErrorExtensions._
 import utopia.vault.database.Connection
-import utopia.vault.nosql.access.{SingleRowModelAccess, UniqueModelAccess}
+import utopia.vault.nosql.access.single.model.SingleRowModelAccess
+import utopia.vault.nosql.access.single.model.distinct.UniqueModelAccess
 import vf.pr.api.database.factory.logging.ProblemFactory
 import vf.pr.api.database.model.logging.{ProblemModel, ProblemOccurrenceModel}
 import vf.pr.api.model.enumeration.Severity

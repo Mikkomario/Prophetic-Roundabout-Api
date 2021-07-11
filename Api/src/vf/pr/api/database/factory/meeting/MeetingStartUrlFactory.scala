@@ -3,7 +3,8 @@ package vf.pr.api.database.factory.meeting
 import utopia.flow.datastructure.immutable.{Constant, Model}
 import utopia.flow.generic.ValueUnwraps._
 import utopia.flow.time.Now
-import utopia.vault.nosql.factory.{Deprecatable, FromValidatedRowModelFactory}
+import utopia.vault.nosql.factory.row.model.FromValidatedRowModelFactory
+import utopia.vault.nosql.template.Deprecatable
 import utopia.vault.sql.SqlExtensions._
 import vf.pr.api.database.RoundaboutTables
 import vf.pr.api.model.partial.meeting.MeetingStartUrlData

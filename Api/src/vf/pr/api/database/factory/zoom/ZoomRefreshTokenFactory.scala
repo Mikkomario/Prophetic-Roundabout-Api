@@ -3,7 +3,9 @@ package vf.pr.api.database.factory.zoom
 import utopia.flow.datastructure.immutable.{Constant, Model}
 import utopia.flow.generic.ValueUnwraps._
 import utopia.flow.time.Today
-import utopia.vault.nosql.factory.{Deprecatable, FromRowFactoryWithTimestamps, FromValidatedRowModelFactory}
+import utopia.vault.nosql.factory.row.FromRowFactoryWithTimestamps
+import utopia.vault.nosql.factory.row.model.FromValidatedRowModelFactory
+import utopia.vault.nosql.template.Deprecatable
 import utopia.vault.sql.SqlExtensions._
 import vf.pr.api.database.RoundaboutTables
 import vf.pr.api.model.partial.zoom.ZoomRefreshTokenData

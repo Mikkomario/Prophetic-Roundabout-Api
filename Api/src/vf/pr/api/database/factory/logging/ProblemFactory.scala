@@ -2,7 +2,7 @@ package vf.pr.api.database.factory.logging
 
 import utopia.flow.datastructure.immutable.{Constant, Model}
 import utopia.flow.generic.ValueUnwraps._
-import utopia.vault.nosql.factory.FromValidatedRowModelFactory
+import utopia.vault.nosql.factory.row.model.FromValidatedRowModelFactory
 import vf.pr.api.database.RoundaboutTables
 import vf.pr.api.model.enumeration.Severity
 import vf.pr.api.model.partial.logging

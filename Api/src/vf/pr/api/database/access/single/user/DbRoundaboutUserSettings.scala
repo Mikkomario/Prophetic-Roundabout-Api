@@ -2,7 +2,8 @@ package vf.pr.api.database.access.single.user
 
 import utopia.flow.time.Now
 import utopia.vault.database.Connection
-import utopia.vault.nosql.access.{SingleRowModelAccess, UniqueModelAccess}
+import utopia.vault.nosql.access.single.model.SingleRowModelAccess
+import utopia.vault.nosql.access.single.model.distinct.UniqueModelAccess
 import vf.pr.api.database.factory.user.RoundaboutUserSettingsFactory
 import vf.pr.api.database.model.user.RoundaboutUserSettingsModel
 import vf.pr.api.model.partial.user.RoundaboutUserSettingsData

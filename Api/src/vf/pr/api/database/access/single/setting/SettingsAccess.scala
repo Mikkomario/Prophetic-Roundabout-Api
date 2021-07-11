@@ -5,7 +5,8 @@ import utopia.flow.caching.multi.Cache
 import utopia.flow.datastructure.immutable.Value
 import utopia.flow.util.CollectionExtensions._
 import utopia.vault.database.Connection
-import utopia.vault.nosql.access.{SingleRowModelAccess, UniqueModelAccess}
+import utopia.vault.nosql.access.single.model.SingleRowModelAccess
+import utopia.vault.nosql.access.single.model.distinct.UniqueModelAccess
 import vf.pr.api.database.factory.SettingFactory
 import vf.pr.api.database.model.SettingModel
 import vf.pr.api.model.error.MissingSettingException
