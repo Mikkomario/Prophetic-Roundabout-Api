@@ -35,6 +35,7 @@ import scala.util.{Failure, Success}
  * @author Mikko Hilpinen
  * @since 16.6.2021, v0.1
  */
+@deprecated("Replaced with the Ambassador dependency", "v0.2")
 object ZoomLoginNode extends ResourceWithChildren[AuthorizedContext]
 {
 	// IMPLEMENTED  ---------------------------------

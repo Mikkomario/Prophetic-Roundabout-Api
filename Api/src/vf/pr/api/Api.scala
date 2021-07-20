@@ -16,14 +16,18 @@ import utopia.nexus.servlet.HttpExtensions._
 import utopia.vault.database.Connection
 import utopia.vault.util.{ErrorHandling, ErrorHandlingPrinciple}
 import vf.pr.api.database.access.single.setting.ApiSettings
-import Globals.executionContext
+import Globals.{acquireTokens, executionContext}
 import utopia.access.http.Method
+import utopia.ambassador.controller.implementation.DefaultRedirector
+import utopia.ambassador.rest.resource.extensions.ExodusTaskExtensions
+import utopia.ambassador.rest.resource.service.ServicesNode
+import utopia.flow.caching.multi.Cache
 import utopia.flow.time.Now
 import vf.pr.api.database.model.logging.RequestLogModel
+import vf.pr.api.model.enumeration.Service
 import vf.pr.api.model.partial.logging.RequestLogData
 import vf.pr.api.rest.data.TimeZonesNode
 import vf.pr.api.rest.extensions.ExodusRestExtensions
-import vf.pr.api.rest.zoom.ZoomNode
 
 import javax.servlet.annotation.MultipartConfig
 import javax.servlet.http.{HttpServlet, HttpServletRequest, HttpServletResponse}
@@ -58,6 +62,7 @@ class Api extends HttpServlet
 	Connection.modifySettings { _.copy(driver = Some("org.mariadb.jdbc.Driver")) }
 	ErrorHandling.defaultPrinciple = ErrorHandlingPrinciple.Custom { error =>
 		Log.withoutConnection("Api.db", error = Some(error)) }
+	ExodusTaskExtensions.apply()
 	ExodusRestExtensions.applyAll()
 	
 	
@@ -122,8 +127,18 @@ class Api extends HttpServlet
 					case Some(rootPath) => rootPath/"api"
 					case None => Path("api")
 				}
+				val redirectors = Cache { serviceId: Int =>
+					Service.forId(serviceId) match
+					{
+						case Some(service) => service.redirector
+						case None =>
+							Log.warning("Api.init.redirectors", s"$serviceId is not recognized as a valid service id")
+							DefaultRedirector
+					}
+				}
 				val requestHandler = RequestHandler[AuthorizedContext](
-					Map("v1" -> (ExodusResources.default ++ Vector(ZoomNode, TimeZonesNode))),
+					Map("v1" -> (ExodusResources.default ++
+						Vector(new ServicesNode(acquireTokens, redirectors), TimeZonesNode))),
 					Some(path)) { AuthorizedContext(_) }
 				
 				settings -> requestHandler

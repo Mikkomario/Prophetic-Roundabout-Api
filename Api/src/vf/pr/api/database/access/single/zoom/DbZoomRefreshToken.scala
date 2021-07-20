@@ -18,6 +18,7 @@ import java.time.Instant
  * @author Mikko Hilpinen
  * @since 17.6.2021, v0.1
  */
+@deprecated("Replaced with the Ambassador dependency", "v0.2")
 object DbZoomRefreshToken extends SingleRowModelAccess[ZoomRefreshToken]
 {
 	// COMPUTED ----------------------------------

@@ -13,4 +13,5 @@ import java.time.Instant
  * @param created Creation time of this authentication attempt
  * @param closed Time when this authentication attempt was closed / finished (successfully)
  */
+@deprecated("Replaced with the Ambassador dependency", "v0.2")
 case class ZoomAuthAttemptData(userId: Int, token: String, created: Instant = Now, closed: Option[Instant] = None)

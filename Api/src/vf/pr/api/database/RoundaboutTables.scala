@@ -37,14 +37,17 @@ object RoundaboutTables
 	/**
 	 * @return Table that records (first time) Zoom authentication attempts
 	 */
+	@deprecated("Replaced with the Ambassador dependency", "v0.2")
 	def zoomAuthAttempt = apply("zoom_authentication_attempt")
 	/**
 	 * @return Table that records Zoom refresh tokens (long-term)
 	 */
+	@deprecated("Replaced with the Ambassador dependency", "v0.2")
 	def zoomRefreshToken = apply("zoom_refresh_token")
 	/**
 	 * @return Table that records Zoom session tokens (short-term)
 	 */
+	@deprecated("Replaced with the Ambassador dependency", "v0.2")
 	def zoomSessionToken = apply("zoom_session_token")
 	
 	/**

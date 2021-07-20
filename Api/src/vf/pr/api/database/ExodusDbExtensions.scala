@@ -23,17 +23,20 @@ object ExodusDbExtensions
 		/**
 		 * @return An access point to this user's Zoom refresh token
 		 */
+		@deprecated("Replaced with the Ambassador dependency", "v0.2")
 		def zoomRefreshToken = DbZoomRefreshToken.forUserWithId(a.userId)
 		/**
 		 * @param connection Implicit DB connection
 		 * @return An active zoom session token for that user
 		 */
+		@deprecated("Replaced with the Ambassador dependency", "v0.2")
 		def zoomSessionToken(implicit connection: Connection) =
 			DbZoomSessionToken.forUserWithId(a.userId)
 		/**
 		 * @param connection Implicit DB connection
 		 * @return Whether this user has been authorized via Zoom (= has a valid refresh token)
 		 */
+		@deprecated("Replaced with the Ambassador dependency", "v0.2")
 		def isZoomAuthorized(implicit connection: Connection) = zoomRefreshToken.nonEmpty
 		
 		/**

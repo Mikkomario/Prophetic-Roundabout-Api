@@ -15,6 +15,7 @@ import vf.pr.api.model.stored.zoom.ZoomSessionToken
  * @author Mikko Hilpinen
  * @since 17.6.2021, v0.1
  */
+@deprecated("Replaced with the Ambassador dependency", "v0.2")
 object ZoomSessionTokenFactory extends FromValidatedRowModelFactory[ZoomSessionToken] with Deprecatable
 {
 	// COMPUTED ----------------------------------

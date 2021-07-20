@@ -13,6 +13,7 @@ import vf.pr.api.model.stored.zoom.ZoomAuthAttempt
  * @author Mikko Hilpinen
  * @since 16.6.2021, v0.1
  */
+@deprecated("Replaced with the Ambassador dependency", "v0.2")
 object ZoomAuthAttemptFactory extends FromValidatedRowModelFactory[ZoomAuthAttempt]
 	with FromRowFactoryWithTimestamps[ZoomAuthAttempt]
 {

@@ -1,12 +1,12 @@
 package vf.pr.api.util
 
-import utopia.bunnymunch.jawn.JsonBunny
-import utopia.disciple.apache.Gateway
-import utopia.disciple.http.request.Timeout
+import utopia.ambassador.controller.implementation.AcquireTokens
+import utopia.ambassador.model.cached.TokenInterfaceConfiguration
 import utopia.flow.async.ThreadPool
-import utopia.flow.parse.JSONReader
-import utopia.flow.time.TimeExtensions._
+import utopia.flow.caching.multi.Cache
 import utopia.vault.database.ConnectionPool
+import vf.pr.api.model.enumeration.Service
+import vf.pr.api.model.enumeration.Service.{Google, Zoom}
 
 import scala.concurrent.ExecutionContext
 
@@ -26,12 +26,32 @@ object Globals
 	/**
 	 * The connection pool used in this project for database interactions
 	 */
-	val connectionPool = new ConnectionPool()
+	implicit val connectionPool: ConnectionPool = new ConnectionPool()
+	
 	/**
 	 * Gateway used for making requests to Zoom servers
 	 */
-	val zoomGateway = new Gateway(Vector(JsonBunny, JSONReader), maximumTimeout = Timeout(30.seconds, 30.seconds),
-		allowBodyParameters = false, allowJsonInUriParameters = false)
+	@deprecated("Please use Zoom.gateway instead", "v0.2")
+	def zoomGateway = Zoom.gateway
+	/**
+	 * Gateway used for making requests to Google servers
+	 */
+	@deprecated("Please use Google.gateway instead", "v0.2")
+	def googleGateway = Google.gateway
+	
+	/**
+	 * An interface for acquiring access tokens to different services (Zoom & Google)
+	 */
+	val acquireTokens = new AcquireTokens(Cache { serviceId: Int =>
+		Service.forId(serviceId) match
+		{
+			case Some(service) => service.tokenConfig
+			case None =>
+				Log.warning.withoutConnection("AcquireTokens.init",
+					s"Service id $serviceId is not recognized")
+				TokenInterfaceConfiguration(Google.gateway)
+		}
+	})
 	
 	
 	// COMPUTED ------------------------------------

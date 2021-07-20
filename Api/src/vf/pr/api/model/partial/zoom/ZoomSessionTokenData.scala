@@ -15,5 +15,6 @@ import java.time.Instant
  * @param created Creation time of this token (default = Now)
  * @param expiration Expiration time of this token (default = within 1 hour)
  */
+@deprecated("Replaced with the Ambassador dependency", "v0.2")
 case class ZoomSessionTokenData(refreshTokenId: Int, value: String, created: Instant = Now,
                                 expiration: Instant = Now + 1.hours)

@@ -8,4 +8,5 @@ import vf.pr.api.model.partial.zoom.ZoomRefreshTokenData
  * @author Mikko Hilpinen
  * @since 16.6.2021, v0.1
  */
+@deprecated("Replaced with the Ambassador dependency", "v0.2")
 case class ZoomRefreshToken(id: Int, data: ZoomRefreshTokenData) extends Stored[ZoomRefreshTokenData, Int]

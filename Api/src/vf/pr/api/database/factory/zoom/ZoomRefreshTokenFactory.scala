@@ -16,6 +16,7 @@ import vf.pr.api.model.stored.zoom.ZoomRefreshToken
  * @author Mikko Hilpinen
  * @since 16.6.2021, v0.1
  */
+@deprecated("Replaced with the Ambassador dependency", "v0.2")
 object ZoomRefreshTokenFactory extends FromValidatedRowModelFactory[ZoomRefreshToken]
 	with FromRowFactoryWithTimestamps[ZoomRefreshToken] with Deprecatable
 {

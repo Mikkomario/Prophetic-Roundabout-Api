@@ -10,6 +10,7 @@ import vf.pr.api.model.stored.zoom.ZoomSessionToken
 
 import java.time.Instant
 
+@deprecated("Replaced with the Ambassador dependency", "v0.2")
 object ZoomSessionTokenModel extends DataInserter[ZoomSessionTokenModel, ZoomSessionToken, ZoomSessionTokenData]
 {
 	// COMPUTED ---------------------------------
@@ -44,6 +45,7 @@ object ZoomSessionTokenModel extends DataInserter[ZoomSessionTokenModel, ZoomSes
  * @author Mikko Hilpinen
  * @since 17.6.2021, v0.1
  */
+@deprecated("Replaced with the Ambassador dependency", "v0.2")
 case class ZoomSessionTokenModel(id: Option[Int] = None, refreshTokenId: Option[Int] = None,
                                  token: Option[String] = None, created: Option[Instant] = None,
                                  expiration: Option[Instant] = None)

@@ -14,5 +14,6 @@ import java.time.{Instant, LocalDate}
  * @param created Creation / acquisition time of this token (default = Now)
  * @param expiration Expiration date of this token (default = after 15 years)
  */
+@deprecated("Replaced with the Ambassador dependency", "v0.2")
 case class ZoomRefreshTokenData(userId: Int, value: String, created: Instant = Now,
                                 expiration: LocalDate = Today + 15.years)

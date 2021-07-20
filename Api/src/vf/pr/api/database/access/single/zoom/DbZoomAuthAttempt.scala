@@ -15,6 +15,7 @@ import vf.pr.api.model.stored.zoom.ZoomAuthAttempt
  * @author Mikko Hilpinen
  * @since 17.6.2021, v0.1
  */
+@deprecated("Replaced with the Ambassador dependency", "v0.2")
 object DbZoomAuthAttempt extends SingleRowModelAccess[ZoomAuthAttempt]
 {
 	// COMPUTED ---------------------------------

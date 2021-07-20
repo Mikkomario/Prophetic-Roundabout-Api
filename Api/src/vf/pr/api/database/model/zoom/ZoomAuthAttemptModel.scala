@@ -10,6 +10,7 @@ import vf.pr.api.model.stored.zoom.ZoomAuthAttempt
 
 import java.time.Instant
 
+@deprecated("Replaced with the Ambassador dependency", "v0.2")
 object ZoomAuthAttemptModel extends DataInserter[ZoomAuthAttemptModel, ZoomAuthAttempt, ZoomAuthAttemptData]
 {
 	// ATTRIBUTES   -------------------------------
@@ -62,6 +63,7 @@ object ZoomAuthAttemptModel extends DataInserter[ZoomAuthAttemptModel, ZoomAuthA
  * @author Mikko Hilpinen
  * @since 16.6.2021, v0.1
  */
+@deprecated("Replaced with the Ambassador dependency", "v0.2")
 case class ZoomAuthAttemptModel(id: Option[Int] = None, userId: Option[Int] = None, token: Option[String] = None,
                                 created: Option[Instant] = None, closed: Option[Instant] = None)
 	extends StorableWithFactory[ZoomAuthAttempt]
