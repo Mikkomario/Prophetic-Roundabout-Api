@@ -28,7 +28,15 @@ INSERT INTO user_role_right (role_id, task_id) VALUES (1, 7), (3, 7);
 
 -- Services: 1 = Zoom, 2 = Google
 INSERT INTO oauth_service (id, name) VALUES (1, 'Zoom'), (2, 'Google');
--- NB: Insert service settings separately (they are not listed here because this document is visible in version control)
+
+-- NB: Please set up the client id and client secret correctly when inserting settings to the database
+-- They are not listed here because this document is available publicly in GitHub
+INSERT INTO oauth_service_settings
+    (service_id, client_id, client_secret, authentication_url, token_url, redirect_url) VALUES
+    (1, '???', '???', 'https://zoom.us/oauth/authorize', 'https://zoom.us/oauth/token',
+        'http://localhost:9999/roundabout/api/v1/services/zoom/auth/response'),
+    (2, '???', '???', 'https://accounts.google.com/o/oauth2/auth', 'https://oauth2.googleapis.com/token',
+        'http://localhost:9999/roundabout/api/v1/services/google/auth/response');
 
 -- Scopes: 1 & 2 for Zoom (meeting:read & meeting:write), 3 for Google (send email)
 INSERT INTO scope (id, service_id, service_side_name, client_side_name, priority) VALUES
