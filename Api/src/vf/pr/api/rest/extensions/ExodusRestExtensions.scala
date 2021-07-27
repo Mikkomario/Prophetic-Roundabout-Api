@@ -41,9 +41,9 @@ object ExodusRestExtensions
 					case success: Result.Success =>
 						implicit val c: Connection = connection
 						val settings = DbUser(session.userId).roundaboutSettings.pullOrInsert()
-						val isZoomAuthorized = DbUser(session.userId).zoomRefreshToken.nonEmpty
+						val authorizedServiceIds = DbUser(session.userId).authorizedServiceIds.toVector.sorted
 						val roundaboutSettingsModel = settings.toModel +
-							Constant(MyRoundaboutSettingsNode.zoomLinkAttName, isZoomAuthorized)
+							Constant(MyRoundaboutSettingsNode.serviceIdsAttName, authorizedServiceIds)
 						
 						success.copy(data = success.data.getModel + Constant("roundabout", roundaboutSettingsModel))
 					case failure: Result => failure

@@ -20,9 +20,9 @@ import vf.pr.api.model.post.NewRoundaboutUserSettings
 object MyRoundaboutSettingsNode extends LeafResource[AuthorizedContext]
 {
 	/**
-	 * Name of the property that determines whether this user account is authorized in Zoom
+	 * Name of the property that shows which 3rd party services this user has authenticated to
 	 */
-	val zoomLinkAttName = "is_zoom_authorized"
+	val serviceIdsAttName = "authorized_service_ids"
 	
 	override val name = "roundabout"
 	
@@ -35,20 +35,21 @@ object MyRoundaboutSettingsNode extends LeafResource[AuthorizedContext]
 			val userId = session.userId
 			val method = context.request.method
 			val settingsAccess = DbUser(userId).roundaboutSettings
-			lazy val zoomLinkConstant = Constant(zoomLinkAttName, DbUser(userId).zoomRefreshToken.nonEmpty)
+			lazy val serviceIdsConstant = Constant(serviceIdsAttName,
+				DbUser(userId).authorizedServiceIds.toVector.sorted)
 			
 			// Case: Get => Retrieves settings as a model
 			if (method == Get)
 			{
 				val settings = settingsAccess.pullOrInsert()
-				Result.Success(settings.toModel + zoomLinkConstant)
+				Result.Success(settings.toModel + serviceIdsConstant)
 			}
 			// Case: Put => Overwrites settings
 			else if (method == Put)
 				context.handlePost(NewRoundaboutUserSettings.fullUpdateFactory) { settings =>
 					val inserted = settingsAccess.update(settings.timeZoneId,
 						settings.ownsProZoomAccount.getOrElse(false))
-					Result.Success(inserted.toModel + zoomLinkConstant)
+					Result.Success(inserted.toModel + serviceIdsConstant)
 				}
 			// Case: Patch => Updates settings where appropriate
 			else
@@ -62,16 +63,16 @@ object MyRoundaboutSettingsNode extends LeafResource[AuthorizedContext]
 								val inserted = settingsAccess.update(
 									update.timeZoneId.orElse(previous.timeZoneId),
 									update.ownsProZoomAccount.getOrElse(previous.ownsProZoomAccount))
-								Result.Success(inserted.toModel + zoomLinkConstant)
+								Result.Success(inserted.toModel + serviceIdsConstant)
 							}
 							// Case: No changes => returns existing version
 							else
-								Result.Success(previous.toModel + zoomLinkConstant)
+								Result.Success(previous.toModel + serviceIdsConstant)
 						// Case: No existing settings => creates a new instance based on update
 						case None =>
 							val inserted = settingsAccess.update(update.timeZoneId,
 								update.ownsProZoomAccount.getOrElse(false))
-							Result.Success(inserted.toModel + zoomLinkConstant)
+							Result.Success(inserted.toModel + serviceIdsConstant)
 					}
 				}
 		}

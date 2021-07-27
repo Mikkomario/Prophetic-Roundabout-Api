@@ -1,5 +1,6 @@
 package vf.pr.api.database
 
+import utopia.ambassador.database.AuthDbExtensions._
 import utopia.citadel.database.access.single.DbUser.DbSingleUser
 import utopia.vault.database.Connection
 import vf.pr.api.database.access.many.DbMeetings
@@ -45,5 +46,11 @@ object ExodusDbExtensions
 		 */
 		def upcomingAndRecentMeetings(implicit connection: Connection) =
 			DbMeetings.upcomingAndRecent.forUserWithId(a.userId)
+		
+		/**
+		 * @param connection Implicit Connection
+		 * @return Ids of the services this user has some kind of authentication in
+		 */
+		def authorizedServiceIds(implicit connection: Connection) = a.authTokens.linkedServiceIds
 	}
 }
