@@ -15,13 +15,17 @@ USE prophetic_roundabout_db;
 -- ROUNDABOUT EXODUS EXTENSIONS ----------------------------------
 
 -- Task 7: Hosting a meeting
-INSERT INTO task (id) VALUES (7);
+-- Task 8: Share Zoom or Google account with organization
+INSERT INTO task (id) VALUES (7), (8);
 
 -- User Role 3: Host
 INSERT INTO organization_user_role (id) VALUES (3);
 
 -- Owners and hosts are allowed to host meetings
-INSERT INTO user_role_right (role_id, task_id) VALUES (1, 7), (3, 7);
+-- Owners and stewards are allowed to share their 3rd party accounts
+INSERT INTO user_role_right (role_id, task_id) VALUES
+    (1, 7), (3, 7),
+    (1, 8), (2, 8);
 
 
 -- ROUNDABOUT AMBASSADOR EXTENSION  ------------------------------
@@ -63,18 +67,9 @@ CREATE TABLE setting(
 
 )Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 
--- TODO: Remove zoom settings (except api-base-uri)
 INSERT INTO setting (category, field, json_value) VALUES
     ('api', 'address', '"http://localhost:9999/roundabout/"'),
     ('api', 'root-path', '"roundabout"'),
-    ('zoom', 'auth-uri', '"https://zoom.us/oauth/authorize"'),
-    ('zoom', 'token-uri', '"https://zoom.us/oauth/token"'),
-    ('zoom', 'redirect-uri', '"http://localhost:9999/roundabout/api/v1/zoom/login/response"'),
-    ('zoom', 'client-id', NULL),
-    ('zoom', 'client-secret', NULL),
-    ('zoom', 'auth-result-page-uri', '"http://localhost:8080/zoom-auth-result"'),
-    ('zoom', 'authentication-timeout-hours', 22),
-    ('zoom', 'max-user-wait-seconds', 8),
     ('zoom', 'api-base-uri', '"https://api.zoom.us/v2/"');
 
 -- Logs server side errors
@@ -122,57 +117,6 @@ CREATE TABLE request(
 
 )Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 
--- Used for storing Zoom authorization attempts coming from the client
--- (will be matched when/if receiving a code from the Zoom auth)
--- TODO: Remove this table (replaced with Ambassador)
-CREATE TABLE zoom_authentication_attempt(
-    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    token VARCHAR(36) NOT NULL,
-    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    closed DATETIME,
-
-    INDEX zaa_auth_idx (created, closed, token),
-
-    CONSTRAINT zaa_u_attempt_owner_ref_fk FOREIGN KEY zaa_u_attempt_owner_ref_fk (user_id)
-        REFERENCES `user`(id) ON DELETE CASCADE
-
-)Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
-
--- Used for storing refresh tokens for Zoom users for request authentication
--- Refresh tokens are used for acquiring session tokens
--- Scope values are separated by :
--- TODO: Remove this table (replaced with Ambassador)
-CREATE TABLE zoom_refresh_token(
-    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    token VARCHAR(700) NOT NULL,
-    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    expiration DATE NOT NULL,
-    deprecated_after DATETIME,
-
-    INDEX zrt_expiration_idx (deprecated_after, expiration),
-
-    CONSTRAINT zrt_u_owner_link_fk FOREIGN KEY zrt_u_owner_link_idx (user_id)
-        REFERENCES `user`(id) ON DELETE CASCADE
-
-)Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
--- Used for authenticating requests to Zoom
--- TODO: Remove this table (replaced with Ambassador)
-CREATE TABLE zoom_session_token(
-    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    refresh_token_id INT NOT NULL,
-    token VARCHAR(700) NOT NULL,
-    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    expiration DATETIME NOT NULL,
-
-    INDEX zat_expiration_idx (expiration),
-
-    CONSTRAINT zst_master_token_ref_fk FOREIGN KEY zst_master_token_ref_idx (refresh_token_id)
-        REFERENCES zoom_refresh_token(id) ON DELETE CASCADE
-
-)Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
-
 -- Contains more information about a user
 CREATE TABLE user_roundabout_settings(
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -186,6 +130,27 @@ CREATE TABLE user_roundabout_settings(
 
     CONSTRAINT urs_u_settings_owner_ref_fk FOREIGN KEY urs_u_settings_owner_ref_idx (user_id)
         REFERENCES `user`(id) ON DELETE CASCADE
+
+)Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+
+-- Lists cases where users have shared one of their 3rd party service accounts with the whole organization (leadership)
+-- E.g. When one gmail account is used for sending scheduled meeting invitations
+CREATE TABLE shared_oauth(
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    account_owner_id INT NOT NULL,
+    shared_service_id INT NOT NULL,
+    organization_id INT NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deprecated_after DATETIME,
+
+    INDEX so_deprecation_idx (deprecated_after),
+
+    CONSTRAINT so_u_sharer_ref_fk FOREIGN KEY so_u_sharer_ref_idx (account_owner_id)
+        REFERENCES `user`(id) ON DELETE CASCADE,
+    CONSTRAINT so_os_shared_service_ref_fk FOREIGN KEY so_os_shared_service_ref_idx (shared_service_id)
+        REFERENCES oauth_service(id) ON DELETE CASCADE,
+    CONSTRAINT so_o_organization_ref_fk FOREIGN KEY so_o_organization_ref_idx (organization_id)
+        REFERENCES organization(id) ON DELETE CASCADE
 
 )Engine=InnoDB DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 

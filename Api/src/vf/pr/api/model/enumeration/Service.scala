@@ -68,9 +68,9 @@ object Service
 		override lazy val gateway = new Gateway(Vector(JsonBunny, JSONReader),
 			maximumTimeout = Timeout(30.seconds, 30.seconds),
 			allowBodyParameters = false, allowJsonInUriParameters = false)
-		
-		override def tokenConfig = TokenInterfaceConfiguration(gateway, 15.years.toApproximateDuration,
+		override lazy val tokenConfig = TokenInterfaceConfiguration(gateway, 15.years.toApproximateDuration,
 			useAuthorizationHeader = true)
+		
 		override def redirector = DefaultRedirector
 	}
 	
@@ -80,12 +80,11 @@ object Service
 	case object Google extends Service
 	{
 		override val id = 2
+		override val redirector = GoogleRedirector(shouldUserSelectAccount = true)
 		
 		override lazy val gateway = new Gateway(Vector(JsonBunny, JSONReader),
 			maximumTimeout = Timeout(30.seconds, 30.seconds), parameterEncoding = Some(Codec.UTF8),
 			allowBodyParameters = false, allowJsonInUriParameters = false)
-		
-		override def tokenConfig = TokenInterfaceConfiguration(gateway)
-		override def redirector = GoogleRedirector
+		override lazy val tokenConfig = TokenInterfaceConfiguration(gateway)
 	}
 }

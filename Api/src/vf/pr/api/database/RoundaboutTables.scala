@@ -33,6 +33,10 @@ object RoundaboutTables
 	 * @return A table that contains Roundabout-specific user settings
 	 */
 	def userSettings = apply("user_roundabout_settings")
+	/**
+	 * @return A table that records cases where a user's 3rd party account is shared for organization's use
+	 */
+	def userAuthShare = apply("shared_oauth")
 	
 	/**
 	 * @return Table that records (first time) Zoom authentication attempts
