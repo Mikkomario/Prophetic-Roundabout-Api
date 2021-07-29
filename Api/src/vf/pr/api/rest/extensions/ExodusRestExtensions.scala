@@ -11,7 +11,7 @@ import utopia.nexus.rest.scalable.FollowImplementation
 import utopia.nexus.result.Result
 import utopia.vault.database.Connection
 import vf.pr.api.database.ExodusDbExtensions._
-import vf.pr.api.rest.extensions.organization.OrganizationMeetingsNode
+import vf.pr.api.rest.extensions.organization.{OrganizationMeetingsNode, SharedOrganizationAuthsNode}
 import vf.pr.api.rest.extensions.user.{MyMeetingsNode, MyRoundaboutSettingsNode}
 
 /**
@@ -49,9 +49,12 @@ object ExodusRestExtensions
 					case failure: Result => failure
 				}
 			})
-			// Adds /meetings to organizations/${id}
+			// Adds /meetings and /shared-auths to organizations/${id}
 			OrganizationNode.addFollow { organizationId =>
 				FollowImplementation.withChild(OrganizationMeetingsNode(organizationId)) }
+			OrganizationNode.addFollow { organizationId =>
+				FollowImplementation.withChild(SharedOrganizationAuthsNode(organizationId))
+			}
 		}
 	}
 }

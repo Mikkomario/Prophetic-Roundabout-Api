@@ -1,5 +1,8 @@
 package vf.pr.api.model.partial.user
 
+import utopia.flow.datastructure.immutable.Model
+import utopia.flow.generic.ModelConvertible
+import utopia.flow.generic.ValueConversions._
 import utopia.flow.time.Now
 
 import java.time.Instant
@@ -17,3 +20,9 @@ import java.time.Instant
  */
 case class SharedAuthData(accountOwnerId: Int, serviceId: Int, organizationId: Int, created: Instant = Now,
                           deprecatedAfter: Option[Instant] = None)
+	extends ModelConvertible
+{
+	override def toModel = Model(Vector("account_owner_id" -> accountOwnerId,
+		"service_id" -> serviceId, "organization_id" -> organizationId, "created" -> created,
+		"deprecated_after" -> deprecatedAfter))
+}

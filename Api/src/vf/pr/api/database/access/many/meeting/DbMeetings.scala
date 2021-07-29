@@ -1,4 +1,4 @@
-package vf.pr.api.database.access.many
+package vf.pr.api.database.access.many.meeting
 
 import utopia.citadel.database.Tables
 import utopia.citadel.database.model.organization.MembershipModel
@@ -60,7 +60,7 @@ object DbMeetings extends ManyRowModelAccess[Meeting]
 		// OTHER    ---------------------------
 		
 		/**
-		 * @param userId A user id
+		 * @param userId     A user id
 		 * @param connection Implicit DB connection
 		 * @return All meetings in the organizations in which the user is a member
 		 */

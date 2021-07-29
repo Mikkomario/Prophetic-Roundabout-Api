@@ -33,6 +33,15 @@ object SharedAuthModel
 	override protected def complete(id: Value, data: SharedAuthData) = SharedAuth(id.getInt, data)
 	
 	override def withDeprecatedAfter(deprecation: Instant) = apply(deprecatedAfter = Some(deprecation))
+	
+	
+	// OTHER    ---------------------------
+	
+	/**
+	 * @param organizationId Id of the auth-receiving organization
+	 * @return A model with that organization id
+	 */
+	def withOrganizationId(organizationId: Int) = apply(organizationId = Some(organizationId))
 }
 
 /**

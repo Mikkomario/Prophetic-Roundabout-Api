@@ -1,6 +1,6 @@
 package vf.pr.api.model.stored.user
 
-import utopia.vault.model.template.Stored
+import utopia.metropolis.model.stored.StoredModelConvertible
 import vf.pr.api.model.partial.user.SharedAuthData
 
 /**
@@ -8,4 +8,4 @@ import vf.pr.api.model.partial.user.SharedAuthData
  * @author Mikko Hilpinen
  * @since 29.7.2021, v0.2
  */
-case class SharedAuth(id: Int, data: SharedAuthData) extends Stored[SharedAuthData, Int]
+case class SharedAuth(id: Int, data: SharedAuthData) extends StoredModelConvertible[SharedAuthData]

@@ -2,8 +2,10 @@ package vf.pr.api.database
 
 import utopia.ambassador.database.AuthDbExtensions._
 import utopia.citadel.database.access.single.DbUser.DbSingleUser
+import utopia.citadel.database.access.single.organization.DbOrganization.DbSingleOrganization
 import utopia.vault.database.Connection
-import vf.pr.api.database.access.many.DbMeetings
+import vf.pr.api.database.access.many.meeting.DbMeetings
+import vf.pr.api.database.access.many.user.DbSharedAuths
 import vf.pr.api.database.access.single.user.DbRoundaboutUserSettings
 import vf.pr.api.database.access.single.zoom.{DbZoomRefreshToken, DbZoomSessionToken}
 
@@ -52,5 +54,13 @@ object ExodusDbExtensions
 		 * @return Ids of the services this user has some kind of authentication in
 		 */
 		def authorizedServiceIds(implicit connection: Connection) = a.authTokens.linkedServiceIds
+	}
+	
+	implicit class ExtendedSingleDbOrganization(val a: DbSingleOrganization) extends AnyVal
+	{
+		/**
+		 * @return An access point to authentications that have been shared for this organization
+		 */
+		def sharedAuths = DbSharedAuths.forOrganizationWithId(a.organizationId)
 	}
 }

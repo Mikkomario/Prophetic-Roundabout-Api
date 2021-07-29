@@ -22,4 +22,11 @@ object RoundaboutTask
 	{
 		override val id = 7
 	}
+	/**
+	 * Task for sharing your 3rd party authentication for other organization members
+	 */
+	case object ShareAuth extends RoundaboutTask
+	{
+		override val id = 8
+	}
 }
