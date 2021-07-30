@@ -41,6 +41,7 @@ INSERT INTO oauth_service_settings
         'http://localhost:9999/roundabout/api/v1/services/zoom/auth/response'),
     (2, '???', '???', 'https://accounts.google.com/o/oauth2/auth', 'https://oauth2.googleapis.com/token',
         'http://localhost:9999/roundabout/api/v1/services/google/auth/response');
+UPDATE oauth_service_settings SET default_completion_redirect_url='http://localhost:8080/oauth-result';
 
 -- Scopes: 1 & 2 for Zoom (meeting:read & meeting:write), 3 for Google (send email)
 INSERT INTO scope (id, service_id, service_side_name, client_side_name, priority) VALUES
